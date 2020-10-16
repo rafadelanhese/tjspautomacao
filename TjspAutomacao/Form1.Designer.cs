@@ -34,16 +34,24 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.btnProcurar = new System.Windows.Forms.Button();
+            this.ttbCaminhoArquivo = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.dgvProcessos = new System.Windows.Forms.DataGridView();
             this.btnProtocolar = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
-            this.ttbCaminhoArquivo = new System.Windows.Forms.TextBox();
-            this.btnProcurar = new System.Windows.Forms.Button();
+            this.ofdArquivo = new System.Windows.Forms.OpenFileDialog();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.btnProcurarPasta = new System.Windows.Forms.Button();
+            this.ttbCaminhoPasta = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.fbdPastaArquivos = new System.Windows.Forms.FolderBrowserDialog();
+            this.btnCarregarPlanilha = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProcessos)).BeginInit();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -63,6 +71,7 @@
             // 
             this.ttbSenha.Location = new System.Drawing.Point(237, 24);
             this.ttbSenha.Name = "ttbSenha";
+            this.ttbSenha.PasswordChar = '*';
             this.ttbSenha.Size = new System.Drawing.Size(152, 20);
             this.ttbSenha.TabIndex = 3;
             // 
@@ -104,10 +113,37 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Tabela de Processos";
             // 
+            // btnProcurar
+            // 
+            this.btnProcurar.Location = new System.Drawing.Point(682, 23);
+            this.btnProcurar.Name = "btnProcurar";
+            this.btnProcurar.Size = new System.Drawing.Size(75, 23);
+            this.btnProcurar.TabIndex = 2;
+            this.btnProcurar.Text = "Procurar";
+            this.btnProcurar.UseVisualStyleBackColor = true;
+            this.btnProcurar.Click += new System.EventHandler(this.btnProcurar_Click);
+            // 
+            // ttbCaminhoArquivo
+            // 
+            this.ttbCaminhoArquivo.Enabled = false;
+            this.ttbCaminhoArquivo.Location = new System.Drawing.Point(120, 25);
+            this.ttbCaminhoArquivo.Name = "ttbCaminhoArquivo";
+            this.ttbCaminhoArquivo.Size = new System.Drawing.Size(556, 20);
+            this.ttbCaminhoArquivo.TabIndex = 1;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(9, 28);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(105, 13);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "Caminho do Arquivo:";
+            // 
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.dgvProcessos);
-            this.groupBox3.Location = new System.Drawing.Point(12, 140);
+            this.groupBox3.Location = new System.Drawing.Point(12, 208);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(776, 298);
             this.groupBox3.TabIndex = 5;
@@ -124,43 +160,74 @@
             // 
             // btnProtocolar
             // 
-            this.btnProtocolar.Location = new System.Drawing.Point(713, 444);
+            this.btnProtocolar.Location = new System.Drawing.Point(713, 512);
             this.btnProtocolar.Name = "btnProtocolar";
             this.btnProtocolar.Size = new System.Drawing.Size(75, 23);
             this.btnProtocolar.TabIndex = 6;
             this.btnProtocolar.Text = "Protocolar";
             this.btnProtocolar.UseVisualStyleBackColor = true;
+            this.btnProtocolar.Click += new System.EventHandler(this.btnProtocolar_Click);
             // 
-            // label3
+            // ofdArquivo
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(9, 28);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(105, 13);
-            this.label3.TabIndex = 0;
-            this.label3.Text = "Caminho do Arquivo:";
+            this.ofdArquivo.FileName = "openFileDialog1";
             // 
-            // ttbCaminhoArquivo
+            // groupBox4
             // 
-            this.ttbCaminhoArquivo.Location = new System.Drawing.Point(120, 25);
-            this.ttbCaminhoArquivo.Name = "ttbCaminhoArquivo";
-            this.ttbCaminhoArquivo.Size = new System.Drawing.Size(556, 20);
-            this.ttbCaminhoArquivo.TabIndex = 1;
+            this.groupBox4.Controls.Add(this.btnProcurarPasta);
+            this.groupBox4.Controls.Add(this.ttbCaminhoPasta);
+            this.groupBox4.Controls.Add(this.label4);
+            this.groupBox4.Location = new System.Drawing.Point(12, 144);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(776, 58);
+            this.groupBox4.TabIndex = 5;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Pasta de Arquivos";
             // 
-            // btnProcurar
+            // btnProcurarPasta
             // 
-            this.btnProcurar.Location = new System.Drawing.Point(682, 25);
-            this.btnProcurar.Name = "btnProcurar";
-            this.btnProcurar.Size = new System.Drawing.Size(75, 23);
-            this.btnProcurar.TabIndex = 2;
-            this.btnProcurar.Text = "Procurar";
-            this.btnProcurar.UseVisualStyleBackColor = true;
+            this.btnProcurarPasta.Location = new System.Drawing.Point(682, 23);
+            this.btnProcurarPasta.Name = "btnProcurarPasta";
+            this.btnProcurarPasta.Size = new System.Drawing.Size(75, 23);
+            this.btnProcurarPasta.TabIndex = 2;
+            this.btnProcurarPasta.Text = "Procurar";
+            this.btnProcurarPasta.UseVisualStyleBackColor = true;
+            this.btnProcurarPasta.Click += new System.EventHandler(this.btnProcurarPasta_Click);
+            // 
+            // ttbCaminhoPasta
+            // 
+            this.ttbCaminhoPasta.Enabled = false;
+            this.ttbCaminhoPasta.Location = new System.Drawing.Point(120, 25);
+            this.ttbCaminhoPasta.Name = "ttbCaminhoPasta";
+            this.ttbCaminhoPasta.Size = new System.Drawing.Size(556, 20);
+            this.ttbCaminhoPasta.TabIndex = 1;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(9, 28);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(96, 13);
+            this.label4.TabIndex = 0;
+            this.label4.Text = "Caminho da Pasta:";
+            // 
+            // btnCarregarPlanilha
+            // 
+            this.btnCarregarPlanilha.Location = new System.Drawing.Point(12, 512);
+            this.btnCarregarPlanilha.Name = "btnCarregarPlanilha";
+            this.btnCarregarPlanilha.Size = new System.Drawing.Size(114, 23);
+            this.btnCarregarPlanilha.TabIndex = 7;
+            this.btnCarregarPlanilha.Text = "Carregar Planilha";
+            this.btnCarregarPlanilha.UseVisualStyleBackColor = true;
+            this.btnCarregarPlanilha.Click += new System.EventHandler(this.btnCarregarPlanilha_Click);
             // 
             // Dashboard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 473);
+            this.ClientSize = new System.Drawing.Size(800, 545);
+            this.Controls.Add(this.btnCarregarPlanilha);
+            this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.btnProtocolar);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
@@ -173,6 +240,8 @@
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvProcessos)).EndInit();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -191,6 +260,13 @@
         private System.Windows.Forms.Button btnProcurar;
         private System.Windows.Forms.TextBox ttbCaminhoArquivo;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.OpenFileDialog ofdArquivo;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.Button btnProcurarPasta;
+        private System.Windows.Forms.TextBox ttbCaminhoPasta;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.FolderBrowserDialog fbdPastaArquivos;
+        private System.Windows.Forms.Button btnCarregarPlanilha;
     }
 }
 
