@@ -78,7 +78,7 @@
             // ttbCPF
             // 
             this.ttbCPF.Location = new System.Drawing.Point(42, 24);
-            this.ttbCPF.Mask = "000,000,000,-00";
+            this.ttbCPF.Mask = "000,000,000-00";
             this.ttbCPF.Name = "ttbCPF";
             this.ttbCPF.Size = new System.Drawing.Size(106, 20);
             this.ttbCPF.TabIndex = 2;
@@ -160,6 +160,7 @@
             // 
             // btnProtocolar
             // 
+            this.btnProtocolar.Enabled = false;
             this.btnProtocolar.Location = new System.Drawing.Point(713, 512);
             this.btnProtocolar.Name = "btnProtocolar";
             this.btnProtocolar.Size = new System.Drawing.Size(75, 23);

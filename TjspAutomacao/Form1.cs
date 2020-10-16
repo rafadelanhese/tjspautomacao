@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,23 +9,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TjspAutomacao.Classe;
+using TjspAutomacao.Service;
 
 namespace TjspAutomacao
 {
     public partial class Dashboard : Form
-    {
+    {        
         public Dashboard()
         {
-            InitializeComponent();
-            InicializaDataGridView();
-        }   
-        
-        private void InicializaDataGridView()
-        {
-            dgvProcessos.Columns.Add("Núm. Processo", "Núm. Processo");
-            dgvProcessos.Columns.Add("Foro", "Foro");
-            dgvProcessos.Columns.Add("Competência", "Competência");
-        }
+            InitializeComponent();            
+        }                   
 
         private void btnProcurar_Click(object sender, EventArgs e)
         {
@@ -38,12 +32,14 @@ namespace TjspAutomacao
         private void btnProtocolar_Click(object sender, EventArgs e)
         {
             Protocolo protocolo = new Protocolo();
+            Boolean passoExecutado;
 
-            string cpf = ttbCPF.Text;
-            string senha = ttbSenha.Text;
+            protocolo.AbreURL("ESAJ");
+            
+            passoExecutado = protocolo.Login(ttbCPF.Text, ttbSenha.Text);
 
-            protocolo.AbreTJSP();
-            protocolo.Login(cpf, senha);
+            if (passoExecutado)
+                protocolo.AbreURL("PETICAO_INICIAL");
         }
 
         private void btnProcurarPasta_Click(object sender, EventArgs e)
@@ -57,7 +53,14 @@ namespace TjspAutomacao
 
         private void btnCarregarPlanilha_Click(object sender, EventArgs e)
         {
+            Planilha planilha = new Planilha();
+            int numMinimoLinhasDGVProcessos = 1;
+            
+            dgvProcessos.DataSource = planilha.CarregaDataGridView(ttbCaminhoArquivo.Text);
 
+            //[1] é o número mínimo para habilitar o btnProtocolar
+            if (dgvProcessos.Rows.Count >= numMinimoLinhasDGVProcessos)
+                btnProtocolar.Enabled = true;
         }
     }
 }
