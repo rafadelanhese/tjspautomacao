@@ -1,0 +1,17 @@
+[1016/151308.430:ERROR:directory_reader_win.cc(43)] FindFirstFile: O sistema não pode encontrar o caminho especificado. (0x3)
+[1016/151352.657:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acesso Negado} Um processo solicitou acesso a um objeto, mas o direito de acesso não lhe foi concedido. (0xc0000022)
+[1016/151352.658:ERROR:exception_snapshot_win.cc(99)] thread ID 18356 not found in process
+[1016/151352.761:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acesso Negado} Um processo solicitou acesso a um objeto, mas o direito de acesso não lhe foi concedido. (0xc0000022)
+[1016/151352.761:ERROR:exception_snapshot_win.cc(99)] thread ID 18184 not found in process
+[1016/152419.047:ERROR:directory_reader_win.cc(43)] FindFirstFile: O sistema não pode encontrar o caminho especificado. (0x3)
+[1016/153146.442:ERROR:process_reader_win.cc(151)] SuspendThread: Acesso negado. (0x5)
+[1016/153146.444:ERROR:process_reader_win.cc(151)] SuspendThread: Acesso negado. (0x5)
+[1016/153146.446:ERROR:process_reader_win.cc(151)] SuspendThread: Acesso negado. (0x5)
+[1016/153146.445:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acesso Negado} Um processo solicitou acesso a um objeto, mas o direito de acesso não lhe foi concedido. (0xc0000022)
+[1016/153146.464:ERROR:exception_snapshot_win.cc(99)] thread ID 19264 not found in process
+[1016/153146.446:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acesso Negado} Um processo solicitou acesso a um objeto, mas o direito de acesso não lhe foi concedido. (0xc0000022)
+[1016/153146.464:ERROR:exception_snapshot_win.cc(99)] thread ID 13564 not found in process
+[1016/153146.526:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acesso Negado} Um processo solicitou acesso a um objeto, mas o direito de acesso não lhe foi concedido. (0xc0000022)
+[1016/153146.526:ERROR:exception_snapshot_win.cc(99)] thread ID 17060 not found in process
+[1016/153146.687:ERROR:process_reader_win.cc(123)] NtOpenThread: {Acesso Negado} Um processo solicitou acesso a um objeto, mas o direito de acesso não lhe foi concedido. (0xc0000022)
+[1016/153146.687:ERROR:exception_snapshot_win.cc(99)] thread ID 15644 not found in process

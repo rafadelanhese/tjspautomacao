@@ -51,7 +51,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classe\Protocolo.cs" />
+    <Compile Include="Model\Polo.cs" />
+    <Compile Include="Model\Processo.cs" />
+    <Compile Include="Service\Planilha.cs" />
+    <Compile Include="Service\Protocolo.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

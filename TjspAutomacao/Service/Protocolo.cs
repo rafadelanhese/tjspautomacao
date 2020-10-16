@@ -23,7 +23,7 @@ namespace TjspAutomacao.Classe
             this.navegador = new ChromeDriver(chromeOptions);
         }
        
-        public void AbreURL(string url)
+        public void AbrirURL(string url)
         {            
             try
             {
