@@ -32,14 +32,17 @@ namespace TjspAutomacao
         private void btnProtocolar_Click(object sender, EventArgs e)
         {
             Protocolo protocolo = new Protocolo();
-            Boolean passoExecutado;
+            Boolean passoExecutado;            
 
             protocolo.AbrirURL("ESAJ");
             
             passoExecutado = protocolo.Login(ttbCPF.Text, ttbSenha.Text);
 
             if (passoExecutado)
-                protocolo.AbrirURL("PETICAO_INICIAL");
+            {
+                protocolo.AbrirURL("PETICAO_INTERMEDIARIA");
+                protocolo.Protocolar(dgvProcessos, ttbCaminhoPasta.Text);
+            }                         
         }
 
         private void btnProcurarPasta_Click(object sender, EventArgs e)
