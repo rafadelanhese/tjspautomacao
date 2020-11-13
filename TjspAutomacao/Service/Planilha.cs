@@ -26,8 +26,8 @@ namespace TjspAutomacao.Service
             if(dtProcessos.Columns.Count < NUM_MINIMO_COLUNAS)
             {
                 dtProcessos.Columns.Add(new DataColumn("Número do Processo"));
-                dtProcessos.Columns.Add(new DataColumn("Foro"));
-                dtProcessos.Columns.Add(new DataColumn("Competência"));
+                dtProcessos.Columns.Add(new DataColumn("Tipo de petição"));
+                dtProcessos.Columns.Add(new DataColumn("Categoria"));
             }            
         }
 

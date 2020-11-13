@@ -152,6 +152,8 @@
             // 
             // dgvProcessos
             // 
+            this.dgvProcessos.AllowUserToAddRows = false;
+            this.dgvProcessos.AllowUserToDeleteRows = false;
             this.dgvProcessos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvProcessos.Location = new System.Drawing.Point(9, 19);
             this.dgvProcessos.Name = "dgvProcessos";
@@ -214,6 +216,7 @@
             // 
             // btnCarregarPlanilha
             // 
+            this.btnCarregarPlanilha.Enabled = false;
             this.btnCarregarPlanilha.Location = new System.Drawing.Point(12, 512);
             this.btnCarregarPlanilha.Name = "btnCarregarPlanilha";
             this.btnCarregarPlanilha.Size = new System.Drawing.Size(114, 23);

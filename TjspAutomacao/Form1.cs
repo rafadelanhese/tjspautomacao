@@ -26,6 +26,7 @@ namespace TjspAutomacao
             if (result == DialogResult.OK)
             {
                 ttbCaminhoArquivo.Text = ofdArquivo.FileName;
+                btnCarregarPlanilha.Enabled = true;
             }
         }
 

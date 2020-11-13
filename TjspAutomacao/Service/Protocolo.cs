@@ -1,16 +1,11 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Html5;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.UI;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Keys = OpenQA.Selenium.Keys;
 
@@ -20,6 +15,7 @@ namespace TjspAutomacao.Classe
     {
         private readonly string ESAJ = "https://esaj.tjsp.jus.br/sajcas/login?service=https%3A%2F%2Fesaj.tjsp.jus.br%2Fpetpg%2Fj_spring_cas_security_check";
         private readonly string PETICAO_CONSULTA = "https://esaj.tjsp.jus.br/petpg/peticoes/intermediaria";
+        private readonly int TEMPO_ESPERA = 3000;
         private IWebDriver navegador;
 
         public Protocolo()
@@ -69,18 +65,37 @@ namespace TjspAutomacao.Classe
 
         public void Protocolar(DataGridView dgvProcessos, string caminhoPasta)
         {
-            int posNumProcesso = 0;
-            for (int posLinha = 0; posLinha < dgvProcessos.Rows.Count - 1; posLinha++)
+            foreach(DataGridViewRow dgvLinha in dgvProcessos.Rows)
             {
-                string numeroProcesso = dgvProcessos.Rows[posLinha].Cells[posNumProcesso].Value.ToString();
+                string numeroProcesso = dgvLinha.Cells["Número do Processo"].Value.ToString();
+                string tipoPeticao = dgvLinha.Cells["Tipo de Petição"].Value.ToString();               
+                Thread.Sleep(TEMPO_ESPERA);
+                InserirNumeroProcesso(numeroProcesso);
+                Thread.Sleep(TEMPO_ESPERA);
+                InserirClassificacao(tipoPeticao);
+                Thread.Sleep(TEMPO_ESPERA);
                 UploadArquivos(numeroProcesso, caminhoPasta);
-            }
+            }           
+        }
+
+        private void InserirNumeroProcesso(string numeroProcesso)
+        {            
+            navegador.FindElement(By.Id("botaoEditarDadosBasicos")).Click();
+            navegador.FindElement(By.Id("processoNumero")).SendKeys(numeroProcesso + Keys.Tab);
+        }
+
+        private void InserirClassificacao(string tipoPetição)
+        {
+            string campoTipoPeticao = "/html/body/span/main/div/div/div/form/div/div/div[2]/div/div/section[3]/div/div[2]/div/div[1]/div/selecao-classe/div/div/div[1]";
+            if (!navegador.FindElement(By.XPath(campoTipoPeticao)).Displayed)
+                navegador.FindElement(By.Id("botaoEditarClassificacao")).Click();
+            
+            navegador.FindElement(By.XPath(campoTipoPeticao)).Click();
+            navegador.FindElement(By.Id("selectClasseIntermediaria")).SendKeys(tipoPetição + Keys.Tab);
         }
         private void UploadArquivos(string numeroProcesso, string caminhoArquivos)
         {
-            string[] arquivos = Directory.GetFiles(caminhoArquivos, "*.pdf");
-            bool addPrimeiroArq = false;
-            IWebElement upload;
+            string[] arquivos = Directory.GetFiles(caminhoArquivos, "*.pdf");                       
 
             var allowsDetection = this.navegador as IAllowsFileDetection;
             if (allowsDetection != null)
@@ -89,25 +104,26 @@ namespace TjspAutomacao.Classe
             }
             
             foreach (string arq in arquivos)
-            {
-                
+            {                
                 if (arq.Contains(numeroProcesso))
-                {
-                    Thread.Sleep(5000);
-                    if (!addPrimeiroArq)
-                    {                        
-                        upload = navegador.FindElement(By.Id("botaoAdicionarDocumento"));
-                        addPrimeiroArq = !addPrimeiroArq;
+                {   
+                    try
+                    {
+                        navegador.FindElement(By.Id("botaoAdicionarDocumento")).Click();
                     }
-                    else
-                        upload = navegador.FindElement(By.ClassName("button__add"));
-                    
-                    upload.Click();
-                    Thread.Sleep(2000);
+                    catch(OpenQA.Selenium.NoSuchElementException ex)
+                    {                        
+                        navegador.FindElement(By.ClassName("button__add")).Click();
+                    }
+                    //if (navegador.FindElement(By.Id("botaoAdicionarDocumento")).Displayed) 
+                        
+                    //else
+                    //    navegador.FindElement(By.ClassName("button__add")).Click();
+                                       
+                    Thread.Sleep(TEMPO_ESPERA);
                     SendKeys.SendWait(arq);
-                    SendKeys.SendWait("{Enter}");
-                    Console.WriteLine(arq);
-                    Thread.Sleep(2000);                                      
+                    SendKeys.SendWait("{Enter}");                   
+                    Thread.Sleep(TEMPO_ESPERA);                                      
                 }                
             }
         }
