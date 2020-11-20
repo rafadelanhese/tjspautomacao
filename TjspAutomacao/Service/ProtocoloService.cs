@@ -1,12 +1,12 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.UI;
 using System;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
+using TjspAutomacao.Model;
 using Keys = OpenQA.Selenium.Keys;
 
 namespace TjspAutomacao.Classe
@@ -68,11 +68,14 @@ namespace TjspAutomacao.Classe
             foreach(DataGridViewRow dgvLinha in dgvProcessos.Rows)
             {
                 string numeroProcesso = dgvLinha.Cells["Número do Processo"].Value.ToString();
-                string tipoPeticao = dgvLinha.Cells["Tipo de Petição"].Value.ToString();               
+                string tipoPeticao = dgvLinha.Cells["Tipo de Petição"].Value.ToString();
+                string valorDespesasProcessuais = dgvLinha.Cells["Despesas Processuais"].Value.ToString();
                 Thread.Sleep(TEMPO_ESPERA);
                 InserirNumeroProcesso(numeroProcesso);
                 Thread.Sleep(TEMPO_ESPERA);
                 InserirClassificacao(tipoPeticao);
+                Thread.Sleep(TEMPO_ESPERA);
+                InserirDespesasProcessuais(valorDespesasProcessuais);
                 Thread.Sleep(TEMPO_ESPERA);
                 UploadArquivos(numeroProcesso, caminhoPasta);
             }           
@@ -93,39 +96,62 @@ namespace TjspAutomacao.Classe
             navegador.FindElement(By.XPath(campoTipoPeticao)).Click();
             navegador.FindElement(By.Id("selectClasseIntermediaria")).SendKeys(tipoPetição + Keys.Tab);
         }
+        
+        public void InserirDespesasProcessuais(string valorDespesasProcessuais)
+        {            
+            if (navegador.FindElement(By.Id("botaoEditarDespesas")).Displayed)
+            {
+                navegador.FindElement(By.Id("botaoEditarDespesas")).Click();
+                navegador.FindElement(By.XPath("//*[@id='despesasProcessuaisDare']/div/div[2]/div/ng-include/div[1]/radio-input[2]")).Click();
+                navegador.FindElement(By.XPath("//*[@id='secaoGuiaCustas']/div/div/button")).Click();
+                navegador.FindElement(By.Id("numeroGuiaDare")).SendKeys(valorDespesasProcessuais);
+                navegador.FindElement(By.Id("btnSalvarGuia")).Click();
+            }
+        }
+
         private void UploadArquivos(string numeroProcesso, string caminhoArquivos)
-        {
-            string[] arquivos = Directory.GetFiles(caminhoArquivos, "*.pdf");                       
+        {            
+            string[] arquivos = Directory.GetFiles(caminhoArquivos, "*.pdf");           
+            int posArquivo = 0;
 
             var allowsDetection = this.navegador as IAllowsFileDetection;
             if (allowsDetection != null)
             {
                 allowsDetection.FileDetector = new LocalFileDetector();
-            }
-            
+            }            
             foreach (string arq in arquivos)
             {                
                 if (arq.Contains(numeroProcesso))
-                {   
+                {
                     try
                     {
                         navegador.FindElement(By.Id("botaoAdicionarDocumento")).Click();
                     }
-                    catch(OpenQA.Selenium.NoSuchElementException ex)
-                    {                        
+                    catch (OpenQA.Selenium.NoSuchElementException ex)
+                    {
                         navegador.FindElement(By.ClassName("button__add")).Click();
-                    }
-                    //if (navegador.FindElement(By.Id("botaoAdicionarDocumento")).Displayed) 
-                        
-                    //else
-                    //    navegador.FindElement(By.ClassName("button__add")).Click();
-                                       
+                    }                        
                     Thread.Sleep(TEMPO_ESPERA);
                     SendKeys.SendWait(arq);
-                    SendKeys.SendWait("{Enter}");                   
-                    Thread.Sleep(TEMPO_ESPERA);                                      
+                    SendKeys.SendWait("{Enter}");
+                    Thread.Sleep(TEMPO_ESPERA);
+                    if (posArquivo > 0)
+                    {
+                        try
+                        {
+                            IWebElement xpathTipoPeticao = new WebDriverWait(navegador, TimeSpan.FromSeconds(10)).Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath(Documento.XPathElementoClicavel(posArquivo))));
+                            xpathTipoPeticao.Click();
+                            navegador.FindElement(By.XPath(Documento.XPathInputTipoDocumento(posArquivo))).SendKeys(string.Concat("Documento ", posArquivo.ToString()) + Keys.Tab);
+                        }
+                        catch (OpenQA.Selenium.ElementClickInterceptedException ex)
+                        {
+
+                        }                        
+                    }
+                    posArquivo++;
                 }                
             }
+            navegador.FindElement(By.Id("botaoSalvarRascunho")).Click();
         }
     }
 }

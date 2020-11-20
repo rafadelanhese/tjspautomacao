@@ -57,7 +57,7 @@ namespace TjspAutomacao
 
         private void btnCarregarPlanilha_Click(object sender, EventArgs e)
         {
-            Planilha planilha = new Planilha();
+            PlanilhaService planilha = new PlanilhaService();
             int numMinimoLinhasDGVProcessos = 1;
             
             dgvProcessos.DataSource = planilha.CarregaDataGridView(ttbCaminhoArquivo.Text);

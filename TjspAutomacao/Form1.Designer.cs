@@ -154,6 +154,7 @@
             // 
             this.dgvProcessos.AllowUserToAddRows = false;
             this.dgvProcessos.AllowUserToDeleteRows = false;
+            this.dgvProcessos.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvProcessos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvProcessos.Location = new System.Drawing.Point(9, 19);
             this.dgvProcessos.Name = "dgvProcessos";
@@ -173,6 +174,7 @@
             // 
             // ofdArquivo
             // 
+            this.ofdArquivo.DefaultExt = "csv";
             this.ofdArquivo.FileName = "openFileDialog1";
             // 
             // groupBox4

@@ -8,14 +8,14 @@ using System.Windows.Forms;
 
 namespace TjspAutomacao.Service
 {
-    class Planilha
+    class PlanilhaService
     {
         private readonly int NUM_MINIMO_LINHAS = 1;
         private readonly int NUM_MINIMO_COLUNAS = 1;
         private readonly int NUM_CORRETO_COLUNAS = 3;
 
         private DataTable dtProcessos;
-        public Planilha()
+        public PlanilhaService()
         {
             this.dtProcessos = new DataTable();
             InicializaDataTable();
@@ -27,7 +27,7 @@ namespace TjspAutomacao.Service
             {
                 dtProcessos.Columns.Add(new DataColumn("Número do Processo"));
                 dtProcessos.Columns.Add(new DataColumn("Tipo de petição"));
-                dtProcessos.Columns.Add(new DataColumn("Categoria"));
+                dtProcessos.Columns.Add(new DataColumn("Despesas Processuais"));                
             }            
         }
 
