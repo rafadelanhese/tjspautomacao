@@ -14,8 +14,10 @@ namespace TjspAutomacao.Classe
     class Protocolo
     {
         private readonly string ESAJ = "https://esaj.tjsp.jus.br/sajcas/login?service=https%3A%2F%2Fesaj.tjsp.jus.br%2Fpetpg%2Fj_spring_cas_security_check";
-        private readonly string PETICAO_CONSULTA = "https://esaj.tjsp.jus.br/petpg/peticoes/intermediaria";
-        private readonly int TEMPO_ESPERA = 3000;
+        private readonly string PETICAO_INTERMEDIARIA = "https://esaj.tjsp.jus.br/petpg/peticoes/intermediaria";
+        private readonly int TEMPO_ESPERA = 4000;
+        private readonly int TAMANHO_NUMERO_DESPPROCESSUAIS = 19;
+        private readonly int TAMANHO_NUMERO_PROCESSO = 20;
         private IWebDriver navegador;
 
         public Protocolo()
@@ -34,7 +36,7 @@ namespace TjspAutomacao.Classe
                     navegador.Navigate().GoToUrl(ESAJ);
                 if (url.Equals("PETICAO_INTERMEDIARIA"))
                 {                    
-                    navegador.Navigate().GoToUrl(PETICAO_CONSULTA);
+                    navegador.Navigate().GoToUrl(PETICAO_INTERMEDIARIA);
                 }
             }
             catch (OpenQA.Selenium.WebDriverException webDriverException)
@@ -57,9 +59,9 @@ namespace TjspAutomacao.Classe
                 navegador.FindElement(By.Id("usernameForm")).SendKeys(cpf);
                 navegador.FindElement(By.Id("passwordForm")).SendKeys(senha);
                 navegador.FindElement(By.Id("pbEntrar")).Click();
-                metodoExecutado = true;
+                
+                metodoExecutado = true;                
             }
-
             return metodoExecutado;
         }        
 
@@ -74,17 +76,24 @@ namespace TjspAutomacao.Classe
                 InserirNumeroProcesso(numeroProcesso);
                 Thread.Sleep(TEMPO_ESPERA);
                 InserirClassificacao(tipoPeticao);
-                Thread.Sleep(TEMPO_ESPERA);
-                InserirDespesasProcessuais(valorDespesasProcessuais);
+                //Thread.Sleep(TEMPO_ESPERA);
+                //InserirDespesasProcessuais(valorDespesasProcessuais);
                 Thread.Sleep(TEMPO_ESPERA);
                 UploadArquivos(numeroProcesso, caminhoPasta);
+                SalvarRascunho();
+                //FecharRascunho();
+                Thread.Sleep(TEMPO_ESPERA);
+                navegador.Navigate().GoToUrl(PETICAO_INTERMEDIARIA);
             }           
         }
 
         private void InserirNumeroProcesso(string numeroProcesso)
         {            
             navegador.FindElement(By.Id("botaoEditarDadosBasicos")).Click();
-            navegador.FindElement(By.Id("processoNumero")).SendKeys(numeroProcesso + Keys.Tab);
+            if (numeroProcesso.Length == TAMANHO_NUMERO_PROCESSO)
+                navegador.FindElement(By.Id("processoNumero")).SendKeys(numeroProcesso + Keys.Tab);
+            else
+                Console.WriteLine("Número do processo menor e/ou maior que o número correto");
         }
 
         private void InserirClassificacao(string tipoPetição)
@@ -97,15 +106,22 @@ namespace TjspAutomacao.Classe
             navegador.FindElement(By.Id("selectClasseIntermediaria")).SendKeys(tipoPetição + Keys.Tab);
         }
         
-        public void InserirDespesasProcessuais(string valorDespesasProcessuais)
+        private void InserirDespesasProcessuais(string valorDespesasProcessuais)
         {            
-            if (navegador.FindElement(By.Id("botaoEditarDespesas")).Displayed)
+            if (!string.IsNullOrEmpty(valorDespesasProcessuais) && valorDespesasProcessuais.Length == TAMANHO_NUMERO_DESPPROCESSUAIS &&navegador.FindElement(By.Id("botaoEditarDespesas")).Displayed)
             {
                 navegador.FindElement(By.Id("botaoEditarDespesas")).Click();
                 navegador.FindElement(By.XPath("//*[@id='despesasProcessuaisDare']/div/div[2]/div/ng-include/div[1]/radio-input[2]")).Click();
                 navegador.FindElement(By.XPath("//*[@id='secaoGuiaCustas']/div/div/button")).Click();
-                navegador.FindElement(By.Id("numeroGuiaDare")).SendKeys(valorDespesasProcessuais);
-                navegador.FindElement(By.Id("btnSalvarGuia")).Click();
+                navegador.FindElement(By.Id("numeroGuiaDare")).SendKeys(valorDespesasProcessuais + Keys.Tab);
+                Thread.Sleep(TEMPO_ESPERA);
+                if (!navegador.FindElement(By.Id("mensagemGeral")).Displayed)
+                    navegador.FindElement(By.Id("btnSalvarGuia")).Click();
+                else
+                {
+                    Console.WriteLine("Modal de erro apareceu");
+                    //navegador.FindElement(By.Id("mensagemGeral")).
+                }
             }
         }
 
@@ -127,7 +143,7 @@ namespace TjspAutomacao.Classe
                     {
                         navegador.FindElement(By.Id("botaoAdicionarDocumento")).Click();
                     }
-                    catch (OpenQA.Selenium.NoSuchElementException ex)
+                    catch (OpenQA.Selenium.NoSuchElementException)
                     {
                         navegador.FindElement(By.ClassName("button__add")).Click();
                     }                        
@@ -135,23 +151,33 @@ namespace TjspAutomacao.Classe
                     SendKeys.SendWait(arq);
                     SendKeys.SendWait("{Enter}");
                     Thread.Sleep(TEMPO_ESPERA);
+                    //Se o posArquivo for maior que 0 significa que ele já anexou o primeiro arquivo
+                    //E agora vai anexar o restante dos arquivos e selecionar o seu tipo
                     if (posArquivo > 0)
                     {
                         try
                         {
                             IWebElement xpathTipoPeticao = new WebDriverWait(navegador, TimeSpan.FromSeconds(10)).Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath(Documento.XPathElementoClicavel(posArquivo))));
                             xpathTipoPeticao.Click();
-                            navegador.FindElement(By.XPath(Documento.XPathInputTipoDocumento(posArquivo))).SendKeys(string.Concat("Documento ", posArquivo.ToString()) + Keys.Tab);
+                            navegador.FindElement(By.XPath(Documento.XPathInputTipoDocumento(posArquivo))).SendKeys(string.Concat("Documento ", posArquivo.ToString()) + Keys.Tab);                            
                         }
-                        catch (OpenQA.Selenium.ElementClickInterceptedException ex)
-                        {
-
+                        catch (OpenQA.Selenium.ElementClickInterceptedException)
+                        {                            
                         }                        
                     }
                     posArquivo++;
                 }                
-            }
+            }             
+        }
+
+        private void SalvarRascunho()
+        {
             navegador.FindElement(By.Id("botaoSalvarRascunho")).Click();
+        }
+
+        private void FecharRascunho()
+        {
+            navegador.FindElement(By.Id("botaoVoltarListagemConsulta")).Click();
         }
     }
 }

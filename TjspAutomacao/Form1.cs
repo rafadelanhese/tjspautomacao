@@ -43,7 +43,9 @@ namespace TjspAutomacao
             {
                 protocolo.AbrirURL("PETICAO_INTERMEDIARIA");
                 protocolo.Protocolar(dgvProcessos, ttbCaminhoPasta.Text);
-            }                         
+            }
+            else
+                MessageBox.Show("Login e/ou senha inválidos");
         }
 
         private void btnProcurarPasta_Click(object sender, EventArgs e)
