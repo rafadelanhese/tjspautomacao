@@ -23,11 +23,13 @@ namespace TjspAutomacao
         private void btnProcurar_Click(object sender, EventArgs e)
         {
             DialogResult result = ofdArquivo.ShowDialog();
-            if (result == DialogResult.OK)
+            if (result == DialogResult.OK && ofdArquivo.FileName.EndsWith(".csv"))
             {
                 ttbCaminhoArquivo.Text = ofdArquivo.FileName;
                 btnCarregarPlanilha.Enabled = true;
             }
+            else
+                MessageBox.Show("Nenhum arquivo foi selecionado ou o arquivo selecionado não é .csv");
         }
 
         private void btnProtocolar_Click(object sender, EventArgs e)
