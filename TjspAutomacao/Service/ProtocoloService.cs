@@ -127,7 +127,7 @@ namespace TjspAutomacao.Classe
 
         private void UploadArquivos(string numeroProcesso, string caminhoArquivos)
         {            
-            string[] arquivos = Directory.GetFiles(caminhoArquivos, "*.pdf");           
+            string[] arquivos = Directory.GetFiles(caminhoArquivos, numeroProcesso + "*.pdf", SearchOption.AllDirectories);           
             int posArquivo = 0;
 
             var allowsDetection = this.navegador as IAllowsFileDetection;
@@ -135,9 +135,11 @@ namespace TjspAutomacao.Classe
             {
                 allowsDetection.FileDetector = new LocalFileDetector();
             }            
-            foreach (string arq in arquivos)
-            {                
-                if (arq.Contains(numeroProcesso))
+            
+            if(arquivos.Length > 0)
+            {
+                arquivos = OrganizaArquivos(arquivos);
+                foreach (string arq in arquivos)
                 {
                     try
                     {
@@ -146,7 +148,7 @@ namespace TjspAutomacao.Classe
                     catch (OpenQA.Selenium.NoSuchElementException)
                     {
                         navegador.FindElement(By.ClassName("button__add")).Click();
-                    }                        
+                    }
                     Thread.Sleep(TEMPO_ESPERA);
                     SendKeys.SendWait(arq);
                     SendKeys.SendWait("{Enter}");
@@ -157,19 +159,55 @@ namespace TjspAutomacao.Classe
                     {
                         try
                         {
+                            ObterNomeTipoDeDocumento(arq);
                             IWebElement xpathTipoPeticao = new WebDriverWait(navegador, TimeSpan.FromSeconds(10)).Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath(Documento.XPathElementoClicavel(posArquivo))));
                             xpathTipoPeticao.Click();
-                            navegador.FindElement(By.XPath(Documento.XPathInputTipoDocumento(posArquivo))).SendKeys(string.Concat("Documento ", posArquivo.ToString()) + Keys.Tab);                            
+                            navegador.FindElement(By.XPath(Documento.XPathInputTipoDocumento(posArquivo))).SendKeys(string.Concat("Documento ", posArquivo.ToString()) + Keys.Tab);
                         }
                         catch (OpenQA.Selenium.ElementClickInterceptedException)
-                        {                            
-                        }                        
+                        {
+                        }
                     }
                     posArquivo++;
-                }                
-            }             
+                }
+            }
+                     
         }
 
+        /* Método coloca o arquivo com a nomenclatura PETICAO na posição 0,
+         * o restante do array é mantido na mesma forma uma vez que não necessidade de ter uma ordem específica
+         */
+        private string[] OrganizaArquivos(string[] arquivos)
+        {
+            string[] auxiliarArquivos = new string[arquivos.Length];
+            int posicaoInicialAuxArquivos = 1;
+
+            foreach(string arq in arquivos)
+            {
+                if (arq.Contains("PETICAO"))
+                    auxiliarArquivos[0] = arq;
+                else
+                {
+                    auxiliarArquivos[posicaoInicialAuxArquivos] = arq;
+                    posicaoInicialAuxArquivos++;
+                }
+            }           
+            
+            return auxiliarArquivos;
+        }
+
+        private string ObterNomeTipoDeDocumento(string arq)
+        {
+            //32 - valor do espaço em int
+            //46 - valor do . em int
+            int posicaoEspaco = arq.LastIndexOf(Char.ConvertFromUtf32(32)) + 1;            
+            string nomeComExtensao = arq.Substring(posicaoEspaco);
+
+            int posicaoPonto = nomeComExtensao.LastIndexOf(Char.ConvertFromUtf32(46));
+            string nomeSemExtensao = nomeComExtensao.Remove(posicaoPonto);
+
+            return nomeSemExtensao;
+        }
         private void SalvarRascunho()
         {
             navegador.FindElement(By.Id("botaoSalvarRascunho")).Click();
