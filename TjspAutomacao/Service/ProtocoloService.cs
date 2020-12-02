@@ -80,6 +80,7 @@ namespace TjspAutomacao.Classe
                 //InserirDespesasProcessuais(valorDespesasProcessuais);
                 Thread.Sleep(TEMPO_ESPERA);
                 UploadArquivos(numeroProcesso, caminhoPasta);
+                GravaValorProtocolo(dgvLinha);
                 SalvarRascunho();
                 //FecharRascunho();
                 Thread.Sleep(TEMPO_ESPERA);
@@ -158,11 +159,10 @@ namespace TjspAutomacao.Classe
                     if (posArquivo > 0)
                     {
                         try
-                        {
-                            ObterNomeTipoDeDocumento(arq);
-                            IWebElement xpathTipoPeticao = new WebDriverWait(navegador, TimeSpan.FromSeconds(10)).Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath(Documento.XPathElementoClicavel(posArquivo))));
+                        {                            
+                            IWebElement xpathTipoPeticao = new WebDriverWait(navegador, TimeSpan.FromSeconds(15)).Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath(Documento.XPathElementoClicavel(posArquivo))));
                             xpathTipoPeticao.Click();
-                            navegador.FindElement(By.XPath(Documento.XPathInputTipoDocumento(posArquivo))).SendKeys(string.Concat("Documento ", posArquivo.ToString()) + Keys.Tab);
+                            navegador.FindElement(By.XPath(Documento.XPathInputTipoDocumento(posArquivo))).SendKeys(ObterNomeTipoDeDocumento(arq) + Keys.Tab);
                         }
                         catch (OpenQA.Selenium.ElementClickInterceptedException)
                         {
@@ -198,10 +198,10 @@ namespace TjspAutomacao.Classe
 
         private string ObterNomeTipoDeDocumento(string arq)
         {
-            //32 - valor do espaço em int
+            //45 - valor do - em int
             //46 - valor do . em int
-            int posicaoEspaco = arq.LastIndexOf(Char.ConvertFromUtf32(32)) + 1;            
-            string nomeComExtensao = arq.Substring(posicaoEspaco);
+            int posicaoHifen = arq.LastIndexOf(Char.ConvertFromUtf32(45)) + 1;            
+            string nomeComExtensao = arq.Substring(posicaoHifen);
 
             int posicaoPonto = nomeComExtensao.LastIndexOf(Char.ConvertFromUtf32(46));
             string nomeSemExtensao = nomeComExtensao.Remove(posicaoPonto);
@@ -216,6 +216,11 @@ namespace TjspAutomacao.Classe
         private void FecharRascunho()
         {
             navegador.FindElement(By.Id("botaoVoltarListagemConsulta")).Click();
+        }
+
+        private void GravaValorProtocolo(DataGridViewRow dgvLinha)
+        {
+            dgvLinha.Cells["Protocolo"].Value = "PROTOCOLADO";            
         }
     }
 }
