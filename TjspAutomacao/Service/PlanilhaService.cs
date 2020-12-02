@@ -12,7 +12,7 @@ namespace TjspAutomacao.Service
     {
         private readonly int NUM_MINIMO_LINHAS = 1;
         private readonly int NUM_MINIMO_COLUNAS = 1;
-        private readonly int NUM_CORRETO_COLUNAS = 3;
+        private readonly int NUM_CORRETO_COLUNAS = 4;
 
         private DataTable dtProcessos;
         public PlanilhaService()
@@ -27,7 +27,8 @@ namespace TjspAutomacao.Service
             {
                 dtProcessos.Columns.Add(new DataColumn("Número do Processo"));
                 dtProcessos.Columns.Add(new DataColumn("Tipo de petição"));
-                dtProcessos.Columns.Add(new DataColumn("Despesas Processuais"));                
+                dtProcessos.Columns.Add(new DataColumn("Despesas Processuais"));
+                dtProcessos.Columns.Add(new DataColumn("Protocolado"));
             }            
         }
 
