@@ -28,7 +28,7 @@ namespace TjspAutomacao.Service
                 dtProcessos.Columns.Add(new DataColumn("Número do Processo"));
                 dtProcessos.Columns.Add(new DataColumn("Tipo de petição"));
                 dtProcessos.Columns.Add(new DataColumn("Despesas Processuais"));
-                dtProcessos.Columns.Add(new DataColumn("Protocolado"));
+                dtProcessos.Columns.Add(new DataColumn("Protocolo"));
             }            
         }
 
