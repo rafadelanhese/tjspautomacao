@@ -47,11 +47,15 @@
             this.label4 = new System.Windows.Forms.Label();
             this.fbdPastaArquivos = new System.Windows.Forms.FolderBrowserDialog();
             this.btnCarregarPlanilha = new System.Windows.Forms.Button();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.ttbSenhaToken = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProcessos)).BeginInit();
             this.groupBox4.SuspendLayout();
+            this.groupBox5.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -62,7 +66,7 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(776, 58);
+            this.groupBox1.Size = new System.Drawing.Size(402, 58);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Credenciais TJ/SP";
@@ -227,11 +231,40 @@
             this.btnCarregarPlanilha.UseVisualStyleBackColor = true;
             this.btnCarregarPlanilha.Click += new System.EventHandler(this.btnCarregarPlanilha_Click);
             // 
+            // groupBox5
+            // 
+            this.groupBox5.Controls.Add(this.label5);
+            this.groupBox5.Location = new System.Drawing.Point(421, 12);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(367, 58);
+            this.groupBox5.TabIndex = 8;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "Senha Token";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(6, 27);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(44, 13);
+            this.label5.TabIndex = 0;
+            this.label5.Text = "Senha: ";
+            // 
+            // ttbSenhaToken
+            // 
+            this.ttbSenhaToken.Location = new System.Drawing.Point(474, 36);
+            this.ttbSenhaToken.Name = "ttbSenhaToken";
+            this.ttbSenhaToken.PasswordChar = '*';
+            this.ttbSenhaToken.Size = new System.Drawing.Size(295, 20);
+            this.ttbSenhaToken.TabIndex = 1;
+            // 
             // Dashboard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 545);
+            this.Controls.Add(this.ttbSenhaToken);
+            this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.btnCarregarPlanilha);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.btnProtocolar);
@@ -248,7 +281,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvProcessos)).EndInit();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -273,6 +309,9 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.FolderBrowserDialog fbdPastaArquivos;
         private System.Windows.Forms.Button btnCarregarPlanilha;
+        private System.Windows.Forms.GroupBox groupBox5;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox ttbSenhaToken;
     }
 }
 

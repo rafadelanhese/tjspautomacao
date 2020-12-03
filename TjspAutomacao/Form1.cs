@@ -63,8 +63,9 @@ namespace TjspAutomacao
         {
             PlanilhaService planilha = new PlanilhaService();
             int numMinimoLinhasDGVProcessos = 1;
-            
-            dgvProcessos.DataSource = planilha.CarregaDataGridView(ttbCaminhoArquivo.Text);
+
+            PlanilhaService.CaminhoArquivo = ttbCaminhoArquivo.Text;
+            dgvProcessos.DataSource = planilha.CarregaDataGridView();
 
             //[1] é o número mínimo para habilitar o btnProtocolar
             if (dgvProcessos.Rows.Count >= numMinimoLinhasDGVProcessos)
