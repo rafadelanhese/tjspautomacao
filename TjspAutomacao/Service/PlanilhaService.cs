@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace TjspAutomacao.Service
 {
     class PlanilhaService
     {
+        public static string CaminhoArquivo { get; set; }
         private readonly int NUM_MINIMO_LINHAS = 1;
         private readonly int NUM_MINIMO_COLUNAS = 1;
         private readonly int NUM_CORRETO_COLUNAS = 4;
@@ -32,9 +34,9 @@ namespace TjspAutomacao.Service
             }            
         }
 
-        public DataTable CarregaDataGridView(string caminhoArquivo)
+        public DataTable CarregaDataGridView()
         {
-            if (string.IsNullOrEmpty(caminhoArquivo))
+            if (string.IsNullOrEmpty(CaminhoArquivo))
             {
                 MessageBox.Show("O caminho do arquivo é nulo ou vazio");
             }
@@ -46,7 +48,7 @@ namespace TjspAutomacao.Service
                     dtProcessos.Rows.Clear();
                 }
 
-                String[] linha = System.IO.File.ReadAllLines(caminhoArquivo);
+                String[] linha = System.IO.File.ReadAllLines(CaminhoArquivo);
 
                 String[] cabecalho = linha[0].Split(Convert.ToChar(";"));                
 
@@ -64,6 +66,34 @@ namespace TjspAutomacao.Service
                 }                           
             }
             return dtProcessos;
+        }
+
+        public static void InsereProtocoloCSV(string numeroProcesso)
+        {
+            string diretorioArquivo = DiretorioArquivoFormatado();
+           
+            using (StreamWriter streamWriter = new StreamWriter(diretorioArquivo, true, Encoding.Default))
+            {
+                streamWriter.WriteLineAsync(string.Concat(numeroProcesso," Data: " + DataAtualFormatada() + " Hora: " + HoraAtualFormatada()));
+                streamWriter.Close();
+            }
+        }
+
+        private static string DataAtualFormatada()
+        {
+            return DateTime.Now.Day + "-" + DateTime.Now.Month + "-" + DateTime.Now.Year;
+        }
+
+        private static string HoraAtualFormatada()
+        {
+            return DateTime.Now.Hour + ":" + DateTime.Now.Minute + ":" + DateTime.Now.Second;
+        }
+
+        private static string DiretorioArquivoFormatado()
+        {
+            int posicaoPonto = CaminhoArquivo.LastIndexOf(Char.ConvertFromUtf32(92));
+            string diretorioArquivo = CaminhoArquivo.Remove(posicaoPonto);
+            return diretorioArquivo + "\\Relatatório Proc. Protocolados" + DataAtualFormatada() + ".txt";
         }
     }
 }

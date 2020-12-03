@@ -9,6 +9,7 @@ using System.Threading;
 using System.Windows.Forms;
 using TjspAutomacao.Model;
 using TjspAutomacao.Service;
+using TjspAutomacao.XPath;
 using Keys = OpenQA.Selenium.Keys;
 
 namespace TjspAutomacao.Classe
@@ -20,14 +21,16 @@ namespace TjspAutomacao.Classe
         private readonly int TEMPO_ESPERA = 4000;
         private readonly int TAMANHO_NUMERO_DESPPROCESSUAIS = 19;
         private readonly int TAMANHO_NUMERO_PROCESSO = 20;
-        private IWebDriver navegador;        
+        private IWebDriver navegador;       
 
         public Protocolo()
-        {
+        {            
             var chromeOptions = new ChromeOptions();
             chromeOptions.PageLoadStrategy = PageLoadStrategy.Normal;            
+            chromeOptions.AddArguments("--start-maximized");           
+            chromeOptions.AddExtension(string.Concat(Directory.GetCurrentDirectory(),"\\WebSigner.crx"));
             this.navegador = new ChromeDriver(chromeOptions);
-            this.navegador.Manage().Window.Maximize();
+            this.navegador.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(100);
         }
        
         public void AbrirUrlLogin()
@@ -54,27 +57,21 @@ namespace TjspAutomacao.Classe
             }
         }        
 
-        public Boolean Login(string cpf, string senha)
+        public void Login(string cpf, string senha)
         {
-            Boolean metodoExecutado;
-
-            if(string.IsNullOrEmpty(cpf) || string.IsNullOrEmpty(senha))
-            {
-                MessageBox.Show("Login ou senha é nulo ou está em branco");
-                metodoExecutado = false;
-            }
-            else
+            try
             {
                 navegador.FindElement(By.Id("usernameForm")).SendKeys(cpf);
                 navegador.FindElement(By.Id("passwordForm")).SendKeys(senha);
                 navegador.FindElement(By.Id("pbEntrar")).Click();
-                
-                metodoExecutado = true;                
             }
-            return metodoExecutado;
+            catch (OpenQA.Selenium.WebDriverTimeoutException)
+            {
+                navegador.Close();
+            }                 
         }        
 
-        public void Protocolar(DataGridView dgvProcessos, string caminhoPasta)
+        public void Protocolar(DataGridView dgvProcessos, string caminhoPasta, string senhaToken)
         {
             foreach(DataGridViewRow dgvLinha in dgvProcessos.Rows)
             {
@@ -85,14 +82,14 @@ namespace TjspAutomacao.Classe
                 InserirNumeroProcesso(numeroProcesso);
                 Thread.Sleep(TEMPO_ESPERA);
                 InserirClassificacao(tipoPeticao);
-                //Thread.Sleep(TEMPO_ESPERA);
-                //InserirDespesasProcessuais(valorDespesasProcessuais);
+                Thread.Sleep(TEMPO_ESPERA);
+                InserirDespesasProcessuais(valorDespesasProcessuais);
                 Thread.Sleep(TEMPO_ESPERA);
                 UploadArquivos(numeroProcesso, caminhoPasta);
-                GravaValorProtocoloDGV(dgvLinha);
-                GravaValorProtocoloCSV(dgvLinha);
                 SalvarRascunho();
-                //FecharRascunho();
+                AssinarDocumento(senhaToken);
+                GravaValorProtocoloDGV(dgvLinha);
+                GravaValorProtocoloCSV(numeroProcesso);
                 Thread.Sleep(TEMPO_ESPERA);
                 navegador.Navigate().GoToUrl(PETICAO_INTERMEDIARIA);
             }           
@@ -170,9 +167,9 @@ namespace TjspAutomacao.Classe
                     {
                         try
                         {                            
-                            IWebElement xpathTipoPeticao = new WebDriverWait(navegador, TimeSpan.FromSeconds(15)).Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath(Documento.XPathElementoClicavel(posArquivo))));
+                            IWebElement xpathTipoPeticao = new WebDriverWait(navegador, TimeSpan.FromSeconds(25)).Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath(DocumentoXPath.ElementoClicavel(posArquivo))));
                             xpathTipoPeticao.Click();
-                            navegador.FindElement(By.XPath(Documento.XPathInputTipoDocumento(posArquivo))).SendKeys(ObterNomeTipoDeDocumento(arq) + Keys.Tab);
+                            navegador.FindElement(By.XPath(DocumentoXPath.InputTipoDocumento(posArquivo))).SendKeys(ObterNomeTipoDeDocumento(arq) + Keys.Tab);
                         }
                         catch (OpenQA.Selenium.ElementClickInterceptedException)
                         {
@@ -221,45 +218,33 @@ namespace TjspAutomacao.Classe
         private void SalvarRascunho()
         {
             navegador.FindElement(By.Id("botaoSalvarRascunho")).Click();
-        }
-
-        private void FecharRascunho()
-        {
-            navegador.FindElement(By.Id("botaoVoltarListagemConsulta")).Click();
-        }
+        }        
 
         private void GravaValorProtocoloDGV(DataGridViewRow dgvLinha)
         {            
             dgvLinha.Cells["Protocolo"].Value = "PROTOCOLADO";                 
         }
 
-        private void GravaValorProtocoloCSV(DataGridViewRow dgvLinha)
+        private void GravaValorProtocoloCSV(string numeroProcesso)
         {
-            string[] conteudoCelulas = new string[dgvLinha.Cells.Count];            
-            int posicao = 0;      
-
-            foreach (DataGridViewCell coluna in dgvLinha.Cells)
-            {
-                conteudoCelulas[posicao++] = coluna.Value.ToString();
-            }
-
-            PlanilhaService.InsereProtocoloCSV(string.Join(";", conteudoCelulas));
+            PlanilhaService.InsereProtocoloCSV(numeroProcesso);
         }
 
-        private void Protocolar()
+        private void AssinarDocumento(string senhaToken)
         {
             try
-            {                
-                navegador.FindElement(By.XPath("//*[@id='containerCertificadoParaAssinatura']/div[2]/div/div/div[1]/span/span[2]")).Click();
-                navegador.FindElement(By.XPath("//*[@id='selectCertificadoParaAssinatura']")).Click();
-                navegador.FindElement(By.Id("botaoProtocolar")).Click();
-                navegador.FindElement(By.XPath("html/body/div[2]/div[2]/div/div[1]/button")).Click();
-
-                AutoItX.Send("Teste");
+            {
+                //navegador.FindElement(By.XPath("//*[@id='containerCertificadoParaAssinatura']/div[2]/div/div/div[1]/span/span[2]")).Click();
+                //navegador.FindElement(By.XPath("//*[@id='selectCertificadoParaAssinatura']")).Click();
+                //*[@id="containerCertificadoParaAssinatura"]/div[2]/div/div/div[1]/span
+                IWebElement weContainerCertificado = new WebDriverWait(navegador, TimeSpan.FromSeconds(25)).Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath(CertificadoXPath.CONTAINER_CERTIFICADO_ASSINATURA)));
+                navegador.FindElement(By.Id(CertificadoXPath.BOTAO_PROTOCOLAR)).Click();
+                navegador.FindElement(By.XPath(CertificadoXPath.BOTAO_PROTOCOLAR_SIM)).Click();
+                SendKeys.SendWait(senhaToken);
             }
             catch (OpenQA.Selenium.ElementNotInteractableException)
             {
-
+                MessageBox.Show("Nenhum certificado disponível");
             }
                         
         }
