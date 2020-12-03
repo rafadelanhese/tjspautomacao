@@ -34,19 +34,19 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.btnProcurar = new System.Windows.Forms.Button();
+            this.BtnProcurar = new System.Windows.Forms.Button();
             this.ttbCaminhoArquivo = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.dgvProcessos = new System.Windows.Forms.DataGridView();
-            this.btnProtocolar = new System.Windows.Forms.Button();
+            this.BtnProtocolar = new System.Windows.Forms.Button();
             this.ofdArquivo = new System.Windows.Forms.OpenFileDialog();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.btnProcurarPasta = new System.Windows.Forms.Button();
+            this.BtnProcurarPasta = new System.Windows.Forms.Button();
             this.ttbCaminhoPasta = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.fbdPastaArquivos = new System.Windows.Forms.FolderBrowserDialog();
-            this.btnCarregarPlanilha = new System.Windows.Forms.Button();
+            this.BtnCarregarPlanilha = new System.Windows.Forms.Button();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.label5 = new System.Windows.Forms.Label();
             this.ttbSenhaToken = new System.Windows.Forms.TextBox();
@@ -107,7 +107,7 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.btnProcurar);
+            this.groupBox2.Controls.Add(this.BtnProcurar);
             this.groupBox2.Controls.Add(this.ttbCaminhoArquivo);
             this.groupBox2.Controls.Add(this.label3);
             this.groupBox2.Location = new System.Drawing.Point(12, 76);
@@ -117,15 +117,15 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Tabela de Processos";
             // 
-            // btnProcurar
+            // BtnProcurar
             // 
-            this.btnProcurar.Location = new System.Drawing.Point(682, 23);
-            this.btnProcurar.Name = "btnProcurar";
-            this.btnProcurar.Size = new System.Drawing.Size(75, 23);
-            this.btnProcurar.TabIndex = 2;
-            this.btnProcurar.Text = "Procurar";
-            this.btnProcurar.UseVisualStyleBackColor = true;
-            this.btnProcurar.Click += new System.EventHandler(this.btnProcurar_Click);
+            this.BtnProcurar.Location = new System.Drawing.Point(682, 23);
+            this.BtnProcurar.Name = "BtnProcurar";
+            this.BtnProcurar.Size = new System.Drawing.Size(75, 23);
+            this.BtnProcurar.TabIndex = 2;
+            this.BtnProcurar.Text = "Procurar";
+            this.BtnProcurar.UseVisualStyleBackColor = true;
+            this.BtnProcurar.Click += new System.EventHandler(this.BtnProcurar_Click);
             // 
             // ttbCaminhoArquivo
             // 
@@ -165,16 +165,16 @@
             this.dgvProcessos.Size = new System.Drawing.Size(761, 273);
             this.dgvProcessos.TabIndex = 0;
             // 
-            // btnProtocolar
+            // BtnProtocolar
             // 
-            this.btnProtocolar.Enabled = false;
-            this.btnProtocolar.Location = new System.Drawing.Point(713, 512);
-            this.btnProtocolar.Name = "btnProtocolar";
-            this.btnProtocolar.Size = new System.Drawing.Size(75, 23);
-            this.btnProtocolar.TabIndex = 6;
-            this.btnProtocolar.Text = "Protocolar";
-            this.btnProtocolar.UseVisualStyleBackColor = true;
-            this.btnProtocolar.Click += new System.EventHandler(this.btnProtocolar_Click);
+            this.BtnProtocolar.Enabled = false;
+            this.BtnProtocolar.Location = new System.Drawing.Point(713, 512);
+            this.BtnProtocolar.Name = "BtnProtocolar";
+            this.BtnProtocolar.Size = new System.Drawing.Size(75, 23);
+            this.BtnProtocolar.TabIndex = 6;
+            this.BtnProtocolar.Text = "Protocolar";
+            this.BtnProtocolar.UseVisualStyleBackColor = true;
+            this.BtnProtocolar.Click += new System.EventHandler(this.BtnProtocolar_Click);
             // 
             // ofdArquivo
             // 
@@ -183,7 +183,7 @@
             // 
             // groupBox4
             // 
-            this.groupBox4.Controls.Add(this.btnProcurarPasta);
+            this.groupBox4.Controls.Add(this.BtnProcurarPasta);
             this.groupBox4.Controls.Add(this.ttbCaminhoPasta);
             this.groupBox4.Controls.Add(this.label4);
             this.groupBox4.Location = new System.Drawing.Point(12, 144);
@@ -193,15 +193,15 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Pasta de Arquivos";
             // 
-            // btnProcurarPasta
+            // BtnProcurarPasta
             // 
-            this.btnProcurarPasta.Location = new System.Drawing.Point(682, 23);
-            this.btnProcurarPasta.Name = "btnProcurarPasta";
-            this.btnProcurarPasta.Size = new System.Drawing.Size(75, 23);
-            this.btnProcurarPasta.TabIndex = 2;
-            this.btnProcurarPasta.Text = "Procurar";
-            this.btnProcurarPasta.UseVisualStyleBackColor = true;
-            this.btnProcurarPasta.Click += new System.EventHandler(this.btnProcurarPasta_Click);
+            this.BtnProcurarPasta.Location = new System.Drawing.Point(682, 23);
+            this.BtnProcurarPasta.Name = "BtnProcurarPasta";
+            this.BtnProcurarPasta.Size = new System.Drawing.Size(75, 23);
+            this.BtnProcurarPasta.TabIndex = 2;
+            this.BtnProcurarPasta.Text = "Procurar";
+            this.BtnProcurarPasta.UseVisualStyleBackColor = true;
+            this.BtnProcurarPasta.Click += new System.EventHandler(this.BtnProcurarPasta_Click);
             // 
             // ttbCaminhoPasta
             // 
@@ -220,16 +220,16 @@
             this.label4.TabIndex = 0;
             this.label4.Text = "Caminho da Pasta:";
             // 
-            // btnCarregarPlanilha
+            // BtnCarregarPlanilha
             // 
-            this.btnCarregarPlanilha.Enabled = false;
-            this.btnCarregarPlanilha.Location = new System.Drawing.Point(12, 512);
-            this.btnCarregarPlanilha.Name = "btnCarregarPlanilha";
-            this.btnCarregarPlanilha.Size = new System.Drawing.Size(114, 23);
-            this.btnCarregarPlanilha.TabIndex = 7;
-            this.btnCarregarPlanilha.Text = "Carregar Planilha";
-            this.btnCarregarPlanilha.UseVisualStyleBackColor = true;
-            this.btnCarregarPlanilha.Click += new System.EventHandler(this.btnCarregarPlanilha_Click);
+            this.BtnCarregarPlanilha.Enabled = false;
+            this.BtnCarregarPlanilha.Location = new System.Drawing.Point(12, 512);
+            this.BtnCarregarPlanilha.Name = "BtnCarregarPlanilha";
+            this.BtnCarregarPlanilha.Size = new System.Drawing.Size(114, 23);
+            this.BtnCarregarPlanilha.TabIndex = 7;
+            this.BtnCarregarPlanilha.Text = "Carregar Planilha";
+            this.BtnCarregarPlanilha.UseVisualStyleBackColor = true;
+            this.BtnCarregarPlanilha.Click += new System.EventHandler(this.BtnCarregarPlanilha_Click);
             // 
             // groupBox5
             // 
@@ -265,9 +265,9 @@
             this.ClientSize = new System.Drawing.Size(800, 545);
             this.Controls.Add(this.ttbSenhaToken);
             this.Controls.Add(this.groupBox5);
-            this.Controls.Add(this.btnCarregarPlanilha);
+            this.Controls.Add(this.BtnCarregarPlanilha);
             this.Controls.Add(this.groupBox4);
-            this.Controls.Add(this.btnProtocolar);
+            this.Controls.Add(this.BtnProtocolar);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -298,17 +298,17 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.DataGridView dgvProcessos;
-        private System.Windows.Forms.Button btnProtocolar;
-        private System.Windows.Forms.Button btnProcurar;
+        private System.Windows.Forms.Button BtnProtocolar;
+        private System.Windows.Forms.Button BtnProcurar;
         private System.Windows.Forms.TextBox ttbCaminhoArquivo;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.OpenFileDialog ofdArquivo;
         private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.Button btnProcurarPasta;
+        private System.Windows.Forms.Button BtnProcurarPasta;
         private System.Windows.Forms.TextBox ttbCaminhoPasta;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.FolderBrowserDialog fbdPastaArquivos;
-        private System.Windows.Forms.Button btnCarregarPlanilha;
+        private System.Windows.Forms.Button BtnCarregarPlanilha;
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox ttbSenhaToken;
