@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using AutoIt;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.UI;
@@ -7,6 +8,7 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using TjspAutomacao.Model;
+using TjspAutomacao.Service;
 using Keys = OpenQA.Selenium.Keys;
 
 namespace TjspAutomacao.Classe
@@ -18,7 +20,7 @@ namespace TjspAutomacao.Classe
         private readonly int TEMPO_ESPERA = 4000;
         private readonly int TAMANHO_NUMERO_DESPPROCESSUAIS = 19;
         private readonly int TAMANHO_NUMERO_PROCESSO = 20;
-        private IWebDriver navegador;
+        private IWebDriver navegador;        
 
         public Protocolo()
         {
@@ -28,22 +30,29 @@ namespace TjspAutomacao.Classe
             this.navegador.Manage().Window.Maximize();
         }
        
-        public void AbrirURL(string url)
-        {            
+        public void AbrirUrlLogin()
+        {
             try
             {
-                if(url.Equals("ESAJ"))
-                    navegador.Navigate().GoToUrl(ESAJ);
-                if (url.Equals("PETICAO_INTERMEDIARIA"))
-                {                    
-                    navegador.Navigate().GoToUrl(PETICAO_INTERMEDIARIA);
-                }
+                navegador.Navigate().GoToUrl(ESAJ);
             }
             catch (OpenQA.Selenium.WebDriverException webDriverException)
             {
-                MessageBox.Show(webDriverException.Message);                
-            }            
+                MessageBox.Show(webDriverException.Message);
+            }
         }
+
+        public void AbrirUrlPeticaoIntermediaria()
+        {
+            try
+            {
+                navegador.Navigate().GoToUrl(PETICAO_INTERMEDIARIA);
+            }
+            catch (OpenQA.Selenium.WebDriverException webDriverException)
+            {
+                MessageBox.Show(webDriverException.Message);
+            }
+        }        
 
         public Boolean Login(string cpf, string senha)
         {
@@ -80,7 +89,8 @@ namespace TjspAutomacao.Classe
                 //InserirDespesasProcessuais(valorDespesasProcessuais);
                 Thread.Sleep(TEMPO_ESPERA);
                 UploadArquivos(numeroProcesso, caminhoPasta);
-                GravaValorProtocolo(dgvLinha);
+                GravaValorProtocoloDGV(dgvLinha);
+                GravaValorProtocoloCSV(dgvLinha);
                 SalvarRascunho();
                 //FecharRascunho();
                 Thread.Sleep(TEMPO_ESPERA);
@@ -218,9 +228,40 @@ namespace TjspAutomacao.Classe
             navegador.FindElement(By.Id("botaoVoltarListagemConsulta")).Click();
         }
 
-        private void GravaValorProtocolo(DataGridViewRow dgvLinha)
+        private void GravaValorProtocoloDGV(DataGridViewRow dgvLinha)
+        {            
+            dgvLinha.Cells["Protocolo"].Value = "PROTOCOLADO";                 
+        }
+
+        private void GravaValorProtocoloCSV(DataGridViewRow dgvLinha)
         {
-            dgvLinha.Cells["Protocolo"].Value = "PROTOCOLADO";            
+            string[] conteudoCelulas = new string[dgvLinha.Cells.Count];            
+            int posicao = 0;      
+
+            foreach (DataGridViewCell coluna in dgvLinha.Cells)
+            {
+                conteudoCelulas[posicao++] = coluna.Value.ToString();
+            }
+
+            PlanilhaService.InsereProtocoloCSV(string.Join(";", conteudoCelulas));
+        }
+
+        private void Protocolar()
+        {
+            try
+            {                
+                navegador.FindElement(By.XPath("//*[@id='containerCertificadoParaAssinatura']/div[2]/div/div/div[1]/span/span[2]")).Click();
+                navegador.FindElement(By.XPath("//*[@id='selectCertificadoParaAssinatura']")).Click();
+                navegador.FindElement(By.Id("botaoProtocolar")).Click();
+                navegador.FindElement(By.XPath("html/body/div[2]/div[2]/div/div[1]/button")).Click();
+
+                AutoItX.Send("Teste");
+            }
+            catch (OpenQA.Selenium.ElementNotInteractableException)
+            {
+
+            }
+                        
         }
     }
 }
