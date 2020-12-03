@@ -20,37 +20,39 @@ namespace TjspAutomacao
             InitializeComponent();            
         }                   
 
-        private void btnProcurar_Click(object sender, EventArgs e)
+        private void BtnProcurar_Click(object sender, EventArgs e)
         {
             DialogResult result = ofdArquivo.ShowDialog();
             if (result == DialogResult.OK && ofdArquivo.FileName.EndsWith(".csv"))
             {
                 ttbCaminhoArquivo.Text = ofdArquivo.FileName;
-                btnCarregarPlanilha.Enabled = true;
+                BtnCarregarPlanilha.Enabled = true;
             }
             else
                 MessageBox.Show("Nenhum arquivo foi selecionado ou o arquivo selecionado não é .csv");
         }
 
-        private void btnProtocolar_Click(object sender, EventArgs e)
+        private void BtnProtocolar_Click(object sender, EventArgs e)
         {
-            Protocolo protocolo = new Protocolo();
-            Boolean passoExecutado;            
+            Protocolo protocolo = new Protocolo();            
 
-            protocolo.AbrirURL("ESAJ");
-            
-            passoExecutado = protocolo.Login(ttbCPF.Text, ttbSenha.Text);
-
-            if (passoExecutado)
+            if (string.IsNullOrEmpty(ttbSenhaToken.Text) || string.IsNullOrEmpty(ttbCPF.Text) || string.IsNullOrEmpty(ttbSenha.Text))
             {
-                protocolo.AbrirURL("PETICAO_INTERMEDIARIA");
-                protocolo.Protocolar(dgvProcessos, ttbCaminhoPasta.Text);
+                MessageBox.Show("Verificar Campos: CPF, Senha TJ/SP e Senha do token podem estar vazios ou nulos");
             }
             else
-                MessageBox.Show("Login e/ou senha inválidos");
+            {
+                protocolo.AbrirUrlLogin();
+
+                protocolo.Login(ttbCPF.Text, ttbSenha.Text);
+
+                protocolo.AbrirUrlPeticaoIntermediaria();
+                protocolo.Protocolar(dgvProcessos, ttbCaminhoPasta.Text, ttbSenhaToken.Text);                
+            }       
+            
         }
 
-        private void btnProcurarPasta_Click(object sender, EventArgs e)
+        private void BtnProcurarPasta_Click(object sender, EventArgs e)
         {
             DialogResult result = fbdPastaArquivos.ShowDialog();
             if (result == DialogResult.OK) 
@@ -59,7 +61,7 @@ namespace TjspAutomacao
             }
         }
 
-        private void btnCarregarPlanilha_Click(object sender, EventArgs e)
+        private void BtnCarregarPlanilha_Click(object sender, EventArgs e)
         {
             PlanilhaService planilha = new PlanilhaService();
             int numMinimoLinhasDGVProcessos = 1;
@@ -69,7 +71,7 @@ namespace TjspAutomacao
 
             //[1] é o número mínimo para habilitar o btnProtocolar
             if (dgvProcessos.Rows.Count >= numMinimoLinhasDGVProcessos)
-                btnProtocolar.Enabled = true;
-        }
+                BtnProtocolar.Enabled = true;
+        }        
     }
 }
