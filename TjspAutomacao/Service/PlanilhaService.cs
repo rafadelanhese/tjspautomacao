@@ -68,7 +68,7 @@ namespace TjspAutomacao.Service
             return dtProcessos;
         }
 
-        public static void InsereProtocoloCSV(string numeroProcesso)
+        public static void InsereProtocoloTXT(string numeroProcesso)
         {
             string diretorioArquivo = DiretorioArquivoFormatado();
            
@@ -93,7 +93,7 @@ namespace TjspAutomacao.Service
         {
             int posicaoPonto = CaminhoArquivo.LastIndexOf(Char.ConvertFromUtf32(92));
             string diretorioArquivo = CaminhoArquivo.Remove(posicaoPonto);
-            return diretorioArquivo + "\\Relatatório Proc. Protocolados" + DataAtualFormatada() + ".txt";
+            return diretorioArquivo + "\\Relatório Proc. Protocolados" + DataAtualFormatada() + ".txt";
         }
     }
 }
