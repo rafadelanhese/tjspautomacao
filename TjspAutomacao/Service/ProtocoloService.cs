@@ -1,9 +1,11 @@
 ﻿using AutoIt;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.UI;
 using System;
+using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
@@ -14,7 +16,7 @@ using Keys = OpenQA.Selenium.Keys;
 
 namespace TjspAutomacao.Classe
 {
-    class Protocolo
+    class ProtocoloService
     {
         private readonly string ESAJ = "https://esaj.tjsp.jus.br/sajcas/login?service=https%3A%2F%2Fesaj.tjsp.jus.br%2Fpetpg%2Fj_spring_cas_security_check";
         private readonly string PETICAO_INTERMEDIARIA = "https://esaj.tjsp.jus.br/petpg/peticoes/intermediaria";
@@ -23,7 +25,7 @@ namespace TjspAutomacao.Classe
         private readonly int TAMANHO_NUMERO_PROCESSO = 20;
         private IWebDriver navegador;       
 
-        public Protocolo()
+        public ProtocoloService()
         {            
             var chromeOptions = new ChromeOptions();
             chromeOptions.PageLoadStrategy = PageLoadStrategy.Normal;            
@@ -76,41 +78,49 @@ namespace TjspAutomacao.Classe
             bool uploadArquivos;
             foreach(DataGridViewRow dgvLinha in dgvProcessos.Rows)
             {
-                string numeroProcesso = dgvLinha.Cells["Número do Processo"].Value.ToString();
-                string tipoPeticao = dgvLinha.Cells["Tipo de Petição"].Value.ToString();
-                string valorDespesasProcessuais = dgvLinha.Cells["Despesas Processuais"].Value.ToString();
-                Thread.Sleep(TEMPO_ESPERA);
-                InserirNumeroProcesso(numeroProcesso);
-                Thread.Sleep(TEMPO_ESPERA);
-                InserirClassificacao(tipoPeticao);
-                Thread.Sleep(TEMPO_ESPERA);
-                InserirDespesasProcessuais(valorDespesasProcessuais);
-                Thread.Sleep(TEMPO_ESPERA);
-                uploadArquivos = UploadArquivos(numeroProcesso, caminhoPasta);
-                Thread.Sleep(TEMPO_ESPERA);
-                SalvarRascunho();
-                if(!uploadArquivos)
-                    GravaValorProtocoloDGV(dgvLinha, "NÃO PROTOCOLADO");
-                else
+                if(dgvLinha != null)
                 {
-                    //AssinarDocumento(senhaToken);
-                    GravaValorProtocoloDGV(dgvLinha, "PROTOCOLADO");
-                    GravaValorProtocoloTXT(numeroProcesso);
+                    string numeroProcesso = dgvLinha.Cells["Número do Processo"].Value.ToString();
+                    string tipoPeticao = dgvLinha.Cells["Tipo de Petição"].Value.ToString();
+                    string numeroDocumento = dgvLinha.Cells["Despesas Processuais"].Value.ToString();
+                    Thread.Sleep(TEMPO_ESPERA);
+                    InserirNumeroProcesso(numeroProcesso);
+                    Thread.Sleep(TEMPO_ESPERA);
+                    InserirClassificacao(tipoPeticao);
+                    Thread.Sleep(TEMPO_ESPERA);
+                    InserirDespesasProcessuais(numeroDocumento);
+                    Thread.Sleep(TEMPO_ESPERA);
+                    uploadArquivos = UploadArquivos(numeroProcesso, caminhoPasta);
+                    Thread.Sleep(TEMPO_ESPERA);
+                    SalvarRascunho();
+                    if (!uploadArquivos)
+                        GravaValorProtocoloDGV(dgvLinha, "NÃO PROTOCOLADO");
+                    else
+                    {
+                        //AssinarDocumento(senhaToken);
+                        GravaValorProtocoloDGV(dgvLinha, "PROTOCOLADO");
+                        GravaValorProtocoloTXT(numeroProcesso);
+                    }
+                    Thread.Sleep(TEMPO_ESPERA);
+                    navegador.Navigate().GoToUrl(PETICAO_INTERMEDIARIA);
+                    Thread.Sleep(TEMPO_ESPERA);
                 }                
-                Thread.Sleep(TEMPO_ESPERA);
-                navegador.Navigate().GoToUrl(PETICAO_INTERMEDIARIA);
-                Thread.Sleep(TEMPO_ESPERA);
             }
             navegador.Close();
         }
 
         private void InserirNumeroProcesso(string numeroProcesso)
-        {            
-            navegador.FindElement(By.Id("botaoEditarDadosBasicos")).Click();
-            if (numeroProcesso.Length == TAMANHO_NUMERO_PROCESSO)
-                navegador.FindElement(By.Id("processoNumero")).SendKeys(numeroProcesso + Keys.Tab);
-            else
-                Console.WriteLine("Número do processo menor e/ou maior que o número correto");
+        {
+            try
+            {
+                navegador.FindElement(By.Id("botaoEditarDadosBasicos")).Click();
+                if (numeroProcesso.Length == TAMANHO_NUMERO_PROCESSO)
+                    navegador.FindElement(By.Id("processoNumero")).SendKeys(numeroProcesso + Keys.Tab);
+            }
+            catch (OpenQA.Selenium.NoSuchElementException)
+            {
+
+            }                     
         }
 
         private void InserirClassificacao(string tipoPetição)
@@ -123,27 +133,58 @@ namespace TjspAutomacao.Classe
             navegador.FindElement(By.Id("selectClasseIntermediaria")).SendKeys(tipoPetição + Keys.Tab);
         }
         
-        private void InserirDespesasProcessuais(string valorDespesasProcessuais)
+        private void InserirDespesasProcessuais(string numeroDocumento)
         {            
-            if (!string.IsNullOrEmpty(valorDespesasProcessuais) && valorDespesasProcessuais.Length == TAMANHO_NUMERO_DESPPROCESSUAIS &&navegador.FindElement(By.Id("botaoEditarDespesas")).Displayed)
+            if (!string.IsNullOrEmpty(numeroDocumento) && navegador.FindElement(By.Id("botaoEditarDespesas")).Displayed)
+            {
+                if(numeroDocumento.Length > TAMANHO_NUMERO_DESPPROCESSUAIS)
+                {
+                    bool inseriuPrimeiraDare = true;
+                    string[] listaNumeroDocumento = numeroDocumento.Split(' ');
+                    foreach (string numDoc in listaNumeroDocumento)
+                    {
+                        if(!string.IsNullOrEmpty(numDoc))
+                        {
+                            InsereDare(numDoc, inseriuPrimeiraDare);
+                            inseriuPrimeiraDare = false;
+                        }                        
+                    }
+                }
+                else
+                {
+                    InsereDare(numeroDocumento, true);
+                }                                  
+            }
+        }
+
+        private void InsereDare(string numeroDocumento, bool primeiraDare)
+        {
+            if (numeroDocumento.Length == TAMANHO_NUMERO_DESPPROCESSUAIS)
             {
                 try
                 {
-                    navegador.FindElement(By.Id("botaoEditarDespesas")).Click();
-                    navegador.FindElement(By.XPath("//*[@id='despesasProcessuaisDare']/div/div[2]/div/ng-include/div[1]/radio-input[2]")).Click();
+                    if(primeiraDare)
+                    {
+                        navegador.FindElement(By.Id("botaoEditarDespesas")).Click();
+                        navegador.FindElement(By.Id("guiaCustasEmitida")).Click();
+                    }                                        
                     navegador.FindElement(By.XPath("//*[@id='secaoGuiaCustas']/div/div/button")).Click();
-                    navegador.FindElement(By.Id("numeroGuiaDare")).SendKeys(valorDespesasProcessuais + Keys.Tab);
+                    navegador.FindElement(By.Id("numeroGuiaDare")).SendKeys(numeroDocumento + Keys.Tab);
                     Thread.Sleep(TEMPO_ESPERA);
-                    navegador.FindElement(By.Id("btnSalvarGuia")).Click();
+                    navegador.FindElement(By.Id("btnSalvarGuia")).Click();                    
+                }
+                catch (OpenQA.Selenium.NoSuchElementException elementException)
+                {
+                    MessageBox.Show("Elemento não encontrado na página: " + elementException.InnerException.Source);
+                    navegador.Close();
                 }
                 catch (OpenQA.Selenium.WebDriverException)
                 {
                     MessageBox.Show("Antes de continuar confirme o número do documento, pois não foi localizado na Secretaria da Fazenda.\n Navegador será encerrado");
                     navegador.Close();
-                }
-            }
+                }                
+            }            
         }
-
         private bool UploadArquivos(string numeroProcesso, string caminhoArquivos)
         {            
             string[] arquivos = Directory.GetFiles(caminhoArquivos, numeroProcesso + "*.pdf", SearchOption.AllDirectories);           
@@ -169,23 +210,15 @@ namespace TjspAutomacao.Classe
                         if (posArquivo == 0)
                         {
                             navegador.FindElement(By.Id("botaoAdicionarDocumento")).Click();
+                            InsereDiretorioArquivo(arq);
                         }
                         else
-                        {
-                            navegador.FindElement(By.ClassName("button__add")).Click();
-                        }
-
-                        Thread.Sleep(TEMPO_ESPERA);
-                        SendKeys.SendWait(arq);
-                        SendKeys.SendWait("{Enter}");
-                        Thread.Sleep(TEMPO_ESPERA);
-                        //Se o posArquivo for maior que 0 significa que ele já anexou o primeiro arquivo
-                        //E agora vai anexar o restante dos arquivos e selecionar o seu tipo
-                        if (posArquivo > 0)
-                        {
+                        {                            
                             try
                             {
-                                IWebElement xpathTipoPeticao = new WebDriverWait(navegador, TimeSpan.FromSeconds(25)).Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath(DocumentoXPath.ElementoClicavel(posArquivo))));
+                                navegador.FindElement(By.ClassName("button__add")).Click();
+                                InsereDiretorioArquivo(arq);
+                                IWebElement xpathTipoPeticao = new WebDriverWait(navegador, TimeSpan.FromMinutes(1)).Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath(DocumentoXPath.ElementoClicavel(posArquivo))));
                                 xpathTipoPeticao.Click();
                                 navegador.FindElement(By.XPath(DocumentoXPath.InputTipoDocumento(posArquivo))).SendKeys(ObterNomeTipoDeDocumento(arq) + Keys.Tab);
                             }
@@ -201,6 +234,13 @@ namespace TjspAutomacao.Classe
             return false;
         }
 
+        private void InsereDiretorioArquivo(string arquivo)
+        {
+            Thread.Sleep(TEMPO_ESPERA);
+            SendKeys.SendWait(arquivo);
+            SendKeys.SendWait("{Enter}");
+            Thread.Sleep(TEMPO_ESPERA);
+        }
         /* Método coloca o arquivo com a nomenclatura PETICAO na posição 0,
          * o restante do array é mantido na mesma forma uma vez que não necessidade de ter uma ordem específica
          */
@@ -286,6 +326,42 @@ namespace TjspAutomacao.Classe
                 MessageBox.Show("Nenhum certificado disponível");
             }
                         
+        }
+
+        public void LoginCertificadoDigital()
+        {
+
+            try
+            {
+                navegador.Navigate().GoToUrl("https://esaj.tjsp.jus.br/sajcas/login?service=https%3A%2F%2Fesaj.tjsp.jus.br%2Fesaj%2Fj_spring_cas_security_check");
+                Thread.Sleep(TEMPO_ESPERA + 5000);
+                navegador.FindElement(By.XPath("//*[@id='tabs']/ul/li[2]")).Click();
+
+                Thread.Sleep(TEMPO_ESPERA + 2000);
+                navegador.FindElement(By.Id("submitCertificado")).Click();
+                Thread.Sleep(TEMPO_ESPERA);
+                if (AutoItX.WinWaitActive("Alerta de Segurança") == 1)
+                {
+                    System.Drawing.Rectangle janelaAlertaSegurança = AutoItX.WinGetPos("Alerta de Segurança");
+                    Thread.Sleep(TEMPO_ESPERA);
+                    AutoItX.MouseClick("left", janelaAlertaSegurança.X + 265, janelaAlertaSegurança.Y + 255, 1);
+                    //Cursor.Position = new Point(rectangle.X + 265, rectangle.Y + 255);                                
+                    if (AutoItX.WinWaitActive("Introduzir PIN") == 1)
+                    {
+                        Thread.Sleep(TEMPO_ESPERA);
+                        System.Drawing.Rectangle janelaPIN = AutoItX.WinGetPos("Introduzir PIN");
+                        Cursor.Position = new Point(janelaPIN.X + 145, janelaPIN.Y + 140);
+                        AutoItX.ControlSend("Introduzir PIN", "", "", "123456789", 0);
+                        //linha abaixo clica no botão OK do após colocar a senha
+                        //AutoItX.MouseClick("left", janelaPIN.X + 145, janelaPIN.Y + 140, 1);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+
+            }
+            
         }
     }
 }
