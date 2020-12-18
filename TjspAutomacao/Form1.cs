@@ -34,22 +34,22 @@ namespace TjspAutomacao
 
         private void BtnProtocolar_Click(object sender, EventArgs e)
         {
-            Protocolo protocolo = new Protocolo();            
-
+            ProtocoloService protocoloService = new ProtocoloService();
+            //protocoloService.LoginCertificadoDigital(ttbSenhaToken.Text);
             if (string.IsNullOrEmpty(ttbSenhaToken.Text) || string.IsNullOrEmpty(ttbCPF.Text) || string.IsNullOrEmpty(ttbSenha.Text))
             {
                 MessageBox.Show("Verificar Campos: CPF, Senha TJ/SP e Senha do token podem estar vazios ou nulos");
             }
             else
             {
-                protocolo.AbrirUrlLogin();
+                protocoloService.AbrirUrlLogin();
 
-                protocolo.Login(ttbCPF.Text, ttbSenha.Text);
+                protocoloService.Login(ttbCPF.Text, ttbSenha.Text);
 
-                protocolo.AbrirUrlPeticaoIntermediaria();
-                protocolo.Protocolar(dgvProcessos, ttbCaminhoPasta.Text, ttbSenhaToken.Text);                
-            }       
-            
+                protocoloService.AbrirUrlPeticaoIntermediaria();
+                protocoloService.Protocolar(dgvProcessos, ttbCaminhoPasta.Text, ttbSenhaToken.Text);
+            }
+
         }
 
         private void BtnProcurarPasta_Click(object sender, EventArgs e)
@@ -63,11 +63,13 @@ namespace TjspAutomacao
 
         private void BtnCarregarPlanilha_Click(object sender, EventArgs e)
         {
-            PlanilhaService planilha = new PlanilhaService();
+            PlanilhaService planilhaService = new PlanilhaService();
             int numMinimoLinhasDGVProcessos = 1;
 
             PlanilhaService.CaminhoArquivo = ttbCaminhoArquivo.Text;
-            dgvProcessos.DataSource = planilha.CarregaDataGridView();
+            dgvProcessos.DataSource = planilhaService.CarregaDataGridView();
+
+            dgvProcessos.Columns["Número do Processo"].DefaultCellStyle.Format = "0000000\\-00\\.0000\\.0\\.00\\.0000";           
 
             //[1] é o número mínimo para habilitar o btnProtocolar
             if (dgvProcessos.Rows.Count >= numMinimoLinhasDGVProcessos)
