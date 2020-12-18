@@ -19,10 +19,11 @@ namespace TjspAutomacao.Classe
     class ProtocoloService
     {
         private readonly string ESAJ = "https://esaj.tjsp.jus.br/sajcas/login?service=https%3A%2F%2Fesaj.tjsp.jus.br%2Fpetpg%2Fj_spring_cas_security_check";
+        private readonly string LOGIN_ESAJ = "https://esaj.tjsp.jus.br/sajcas/login?service=https%3A%2F%2Fesaj.tjsp.jus.br%2Fesaj%2Fj_spring_cas_security_check";
         private readonly string PETICAO_INTERMEDIARIA = "https://esaj.tjsp.jus.br/petpg/peticoes/intermediaria";
         private readonly int TEMPO_ESPERA = 4000;
         private readonly int TAMANHO_NUMERO_DESPPROCESSUAIS = 19;
-        private readonly int TAMANHO_NUMERO_PROCESSO = 20;
+        private readonly int TAMANHO_NUMERO_PROCESSO = 25;
         private IWebDriver navegador;       
 
         public ProtocoloService()
@@ -113,7 +114,9 @@ namespace TjspAutomacao.Classe
         {
             try
             {
-                navegador.FindElement(By.Id("botaoEditarDadosBasicos")).Click();
+                IWebElement botaoEditarDadosBasicos = GetWebDriverWait(By.Id("botaoEditarDadosBasicos"));
+                botaoEditarDadosBasicos.Click();
+               
                 if (numeroProcesso.Length == TAMANHO_NUMERO_PROCESSO)
                     navegador.FindElement(By.Id("processoNumero")).SendKeys(numeroProcesso + Keys.Tab);
             }
@@ -209,17 +212,18 @@ namespace TjspAutomacao.Classe
                     {
                         if (posArquivo == 0)
                         {
-                            navegador.FindElement(By.Id("botaoAdicionarDocumento")).Click();
-                            InsereDiretorioArquivo(arq);
+                            navegador.FindElement(By.XPath("//*[@id='botaoAdicionarDocumento']/input")).SendKeys(@arq);
+                            Thread.Sleep(TEMPO_ESPERA + 3000);
                         }
                         else
                         {                            
                             try
                             {
-                                navegador.FindElement(By.ClassName("button__add")).Click();
-                                InsereDiretorioArquivo(arq);
-                                IWebElement xpathTipoPeticao = new WebDriverWait(navegador, TimeSpan.FromMinutes(1)).Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath(DocumentoXPath.ElementoClicavel(posArquivo))));
-                                xpathTipoPeticao.Click();
+                                navegador.FindElement(By.XPath(DocumentoXPath.INPUT_DOCUMENTO)).SendKeys(@arq);
+                                Thread.Sleep(TEMPO_ESPERA + 3000);
+                                IWebElement tipoPeticao = GetWebDriverWait(By.XPath(DocumentoXPath.ElementoClicavel(posArquivo)));
+                                tipoPeticao.Click();
+                              
                                 navegador.FindElement(By.XPath(DocumentoXPath.InputTipoDocumento(posArquivo))).SendKeys(ObterNomeTipoDeDocumento(arq) + Keys.Tab);
                             }
                             catch (OpenQA.Selenium.ElementClickInterceptedException)
@@ -233,14 +237,7 @@ namespace TjspAutomacao.Classe
             }
             return false;
         }
-
-        private void InsereDiretorioArquivo(string arquivo)
-        {
-            Thread.Sleep(TEMPO_ESPERA);
-            SendKeys.SendWait(arquivo);
-            SendKeys.SendWait("{Enter}");
-            Thread.Sleep(TEMPO_ESPERA);
-        }
+       
         /* Método coloca o arquivo com a nomenclatura PETICAO na posição 0,
          * o restante do array é mantido na mesma forma uma vez que não necessidade de ter uma ordem específica
          */
@@ -319,7 +316,7 @@ namespace TjspAutomacao.Classe
                 IWebElement weContainerCertificado = new WebDriverWait(navegador, TimeSpan.FromSeconds(25)).Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath(CertificadoXPath.CONTAINER_CERTIFICADO_ASSINATURA)));
                 navegador.FindElement(By.Id(CertificadoXPath.BOTAO_PROTOCOLAR)).Click();
                 navegador.FindElement(By.XPath(CertificadoXPath.BOTAO_PROTOCOLAR_SIM)).Click();
-                SendKeys.SendWait(senhaToken);
+                AcessaCertificadoDigital(senhaToken);
             }
             catch (OpenQA.Selenium.ElementNotInteractableException)
             {
@@ -328,34 +325,24 @@ namespace TjspAutomacao.Classe
                         
         }
 
-        public void LoginCertificadoDigital()
+        public void LoginCertificadoDigital(string senhaToken)
         {
-
             try
             {
-                navegador.Navigate().GoToUrl("https://esaj.tjsp.jus.br/sajcas/login?service=https%3A%2F%2Fesaj.tjsp.jus.br%2Fesaj%2Fj_spring_cas_security_check");
-                Thread.Sleep(TEMPO_ESPERA + 5000);
-                navegador.FindElement(By.XPath("//*[@id='tabs']/ul/li[2]")).Click();
+                navegador.Navigate().GoToUrl(LOGIN_ESAJ);                                            
 
-                Thread.Sleep(TEMPO_ESPERA + 2000);
-                navegador.FindElement(By.Id("submitCertificado")).Click();
-                Thread.Sleep(TEMPO_ESPERA);
-                if (AutoItX.WinWaitActive("Alerta de Segurança") == 1)
-                {
-                    System.Drawing.Rectangle janelaAlertaSegurança = AutoItX.WinGetPos("Alerta de Segurança");
-                    Thread.Sleep(TEMPO_ESPERA);
-                    AutoItX.MouseClick("left", janelaAlertaSegurança.X + 265, janelaAlertaSegurança.Y + 255, 1);
-                    //Cursor.Position = new Point(rectangle.X + 265, rectangle.Y + 255);                                
-                    if (AutoItX.WinWaitActive("Introduzir PIN") == 1)
-                    {
-                        Thread.Sleep(TEMPO_ESPERA);
-                        System.Drawing.Rectangle janelaPIN = AutoItX.WinGetPos("Introduzir PIN");
-                        Cursor.Position = new Point(janelaPIN.X + 145, janelaPIN.Y + 140);
-                        AutoItX.ControlSend("Introduzir PIN", "", "", "123456789", 0);
-                        //linha abaixo clica no botão OK do após colocar a senha
-                        //AutoItX.MouseClick("left", janelaPIN.X + 145, janelaPIN.Y + 140, 1);
-                    }
-                }
+                IWebElement abaCertificadoDigital = GetWebDriverWait(By.XPath("//*[@id='tabs']/ul/li[2]"));
+                abaCertificadoDigital.Click();
+
+                //Seleciona o certificado pelo texto
+                //SelectElement selectCertificados = new SelectElement(navegador.FindElement(By.Id("certificados")));
+                //selectCertificados.SelectByText("[Não ICP-Brasil] 189.9.32.218 - Validade: 26/2/2021");
+
+
+                IWebElement botaoEntrar = GetWebDriverWait(By.Id("submitCertificado"));
+                botaoEntrar.Click();
+
+                AcessaCertificadoDigital(senhaToken);
             }
             catch (Exception e)
             {
@@ -363,5 +350,47 @@ namespace TjspAutomacao.Classe
             }
             
         }
+
+        private IWebElement GetWebDriverWait(By elemento)
+        {
+            return new WebDriverWait(navegador, TimeSpan.FromMinutes(1)).Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(elemento));
+        }
+
+        private bool AcessaCertificadoDigital(string senhaToken)
+        {
+            try
+            {
+                if (AutoItX.WinWaitActive("Alerta de Segurança") == 1)
+                {
+                    System.Drawing.Rectangle janelaAlertaSegurança = AutoItX.WinGetPos("Alerta de Segurança");
+
+                    //Clica no no checkbox: Não me pergunte novamente para este site e certificado
+                    AutoItX.MouseClick("left", janelaAlertaSegurança.X + 25, janelaAlertaSegurança.Y + 199, 1, 30);
+
+                    //Clica no botão Permitir do WebSigner
+                    AutoItX.MouseClick("left", janelaAlertaSegurança.X + 265, janelaAlertaSegurança.Y + 255, 1, 30);
+                }
+
+                if (AutoItX.WinWaitActive("Introduzir PIN") == 1)
+                {
+                    System.Drawing.Rectangle janelaPIN = AutoItX.WinGetPos("Introduzir PIN");
+
+                    //Clica no input para colocar o cursor no lugar correto
+                    AutoItX.MouseClick("left", janelaPIN.X + 115, janelaPIN.Y + 65, 1, 30);
+
+                    //Envia a senha do token para o input de texto
+                    AutoItX.ControlSend("Introduzir PIN", "", "", senhaToken, 0);
+
+                    //linha abaixo clica no botão OK do após colocar a senha
+                    //AutoItX.MouseClick("left", janelaPIN.X + 145, janelaPIN.Y + 140, 1, 30);
+                }
+
+                return true;
+            }
+            catch(Exception e)
+            {
+                return false;
+            }
+        } 
     }
 }
