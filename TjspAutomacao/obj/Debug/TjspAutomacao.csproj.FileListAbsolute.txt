@@ -10,7 +10,6 @@ C:\Users\hepta.rafael.d\Documents\Projetos\TjspAutomacao\TjspAutomacao\bin\Debug
 C:\Users\hepta.rafael.d\Documents\Projetos\TjspAutomacao\TjspAutomacao\bin\Debug\AutoItX3.Assembly.xml
 C:\Users\hepta.rafael.d\Documents\Projetos\TjspAutomacao\TjspAutomacao\bin\Debug\WebDriver.xml
 C:\Users\hepta.rafael.d\Documents\Projetos\TjspAutomacao\TjspAutomacao\bin\Debug\WebDriver.Support.xml
-C:\Users\hepta.rafael.d\Documents\Projetos\TjspAutomacao\TjspAutomacao\obj\Debug\TjspAutomacao.csprojAssemblyReference.cache
 C:\Users\hepta.rafael.d\Documents\Projetos\TjspAutomacao\TjspAutomacao\obj\Debug\TjspAutomacao.Dashboard.resources
 C:\Users\hepta.rafael.d\Documents\Projetos\TjspAutomacao\TjspAutomacao\obj\Debug\TjspAutomacao.Properties.Resources.resources
 C:\Users\hepta.rafael.d\Documents\Projetos\TjspAutomacao\TjspAutomacao\obj\Debug\TjspAutomacao.csproj.GenerateResource.cache
@@ -18,3 +17,4 @@ C:\Users\hepta.rafael.d\Documents\Projetos\TjspAutomacao\TjspAutomacao\obj\Debug
 C:\Users\hepta.rafael.d\Documents\Projetos\TjspAutomacao\TjspAutomacao\obj\Debug\TjspAutomacao.csproj.CopyComplete
 C:\Users\hepta.rafael.d\Documents\Projetos\TjspAutomacao\TjspAutomacao\obj\Debug\TjspAutomacao.exe
 C:\Users\hepta.rafael.d\Documents\Projetos\TjspAutomacao\TjspAutomacao\obj\Debug\TjspAutomacao.pdb
+C:\Users\hepta.rafael.d\Documents\Projetos\TjspAutomacao\TjspAutomacao\obj\Debug\TjspAutomacao.csprojAssemblyReference.cache

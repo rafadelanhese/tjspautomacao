@@ -5,6 +5,7 @@ using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.UI;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Threading;
@@ -21,7 +22,7 @@ namespace TjspAutomacao.Classe
         private readonly string ESAJ = "https://esaj.tjsp.jus.br/sajcas/login?service=https%3A%2F%2Fesaj.tjsp.jus.br%2Fpetpg%2Fj_spring_cas_security_check";
         private readonly string LOGIN_ESAJ = "https://esaj.tjsp.jus.br/sajcas/login?service=https%3A%2F%2Fesaj.tjsp.jus.br%2Fesaj%2Fj_spring_cas_security_check";
         private readonly string PETICAO_INTERMEDIARIA = "https://esaj.tjsp.jus.br/petpg/peticoes/intermediaria";
-        private readonly int TEMPO_ESPERA = 4000;
+        private readonly TimeSpan TEMPO_ESPERA = TimeSpan.FromSeconds(5);
         private readonly int TAMANHO_NUMERO_DESPPROCESSUAIS = 19;
         private readonly int TAMANHO_NUMERO_PROCESSO = 25;
         private IWebDriver navegador;       
@@ -122,8 +123,14 @@ namespace TjspAutomacao.Classe
             }
             catch (OpenQA.Selenium.NoSuchElementException)
             {
-
-            }                     
+                MessageBox.Show("Não achou o elemento Informar");
+                navegador.Close();
+            }
+            catch (OpenQA.Selenium.ElementClickInterceptedException)
+            {
+                MessageBox.Show("Botão Informar não está disponível para o clique");
+                navegador.Close();
+            }
         }
 
         private void InserirClassificacao(string tipoPetição)
@@ -143,24 +150,31 @@ namespace TjspAutomacao.Classe
                 if(numeroDocumento.Length > TAMANHO_NUMERO_DESPPROCESSUAIS)
                 {
                     bool inseriuPrimeiraDare = true;
-                    string[] listaNumeroDocumento = numeroDocumento.Split(' ');
+                    string[] listaNumeroDocumento = numeroDocumento.Split('-');
                     foreach (string numDoc in listaNumeroDocumento)
                     {
                         if(!string.IsNullOrEmpty(numDoc))
                         {
-                            InsereDare(numDoc, inseriuPrimeiraDare);
+                            InserirDare(numDoc, inseriuPrimeiraDare);
                             inseriuPrimeiraDare = false;
                         }                        
                     }
                 }
                 else
                 {
-                    InsereDare(numeroDocumento, true);
+                    InserirDare(numeroDocumento, true);
                 }                                  
             }
         }
 
-        private void InsereDare(string numeroDocumento, bool primeiraDare)
+        private void InserirPoloAtivo()
+        {
+            //string[] dados = { "07.282.377/0001-20", "60.942.281/0001-23", "07.297.359/0001-11", "61.416.244/0001-44", "77.882.504/0002-98", "07.282.377/0001-20" };
+            List<string> listCNPJ = new List<string>() {"07.282.377/0001-20", "60.942.281/0001-23", "07.297.359/0001-11", "61.416.244/0001-44", "77.882.504/0002-98", "07.282.377/0001-20"};           
+
+        }
+
+        private void InserirDare(string numeroDocumento, bool primeiraDare)
         {
             if (numeroDocumento.Length == TAMANHO_NUMERO_DESPPROCESSUAIS)
             {
@@ -191,51 +205,52 @@ namespace TjspAutomacao.Classe
         private bool UploadArquivos(string numeroProcesso, string caminhoArquivos)
         {            
             string[] arquivos = Directory.GetFiles(caminhoArquivos, numeroProcesso + "*.pdf", SearchOption.AllDirectories);           
-            int posArquivo = 0;            
+            bool peticaoAnexada = false;            
 
             var allowsDetection = this.navegador as IAllowsFileDetection;
             if (allowsDetection != null)
             {
                 allowsDetection.FileDetector = new LocalFileDetector();
-            }            
-            
-            if(arquivos.Length > 0)
-            {                
-                if (!ExistePeticao(arquivos))
+            }
+
+            if (arquivos.Length > 0 && ExistePeticao(arquivos))
+            {
+                arquivos = OrganizaArquivos(arquivos);
+                foreach (string arq in arquivos)
                 {
-                    return false;
-                }
-                else
-                {
-                    arquivos = OrganizaArquivos(arquivos);
-                    foreach (string arq in arquivos)
+                    if (!peticaoAnexada)
                     {
-                        if (posArquivo == 0)
-                        {
-                            navegador.FindElement(By.XPath("//*[@id='botaoAdicionarDocumento']/input")).SendKeys(@arq);
-                            Thread.Sleep(TEMPO_ESPERA + 3000);
-                        }
-                        else
-                        {                            
-                            try
-                            {
-                                navegador.FindElement(By.XPath(DocumentoXPath.INPUT_DOCUMENTO)).SendKeys(@arq);
-                                Thread.Sleep(TEMPO_ESPERA + 3000);
-                                IWebElement tipoPeticao = GetWebDriverWait(By.XPath(DocumentoXPath.ElementoClicavel(posArquivo)));
-                                tipoPeticao.Click();
-                              
-                                navegador.FindElement(By.XPath(DocumentoXPath.InputTipoDocumento(posArquivo))).SendKeys(ObterNomeTipoDeDocumento(arq) + Keys.Tab);
-                            }
-                            catch (OpenQA.Selenium.ElementClickInterceptedException)
-                            {
-                            }
-                        }
-                        posArquivo++;
+                        navegador.FindElement(By.XPath("//*[@id='botaoAdicionarDocumento']/input")).SendKeys(@arq);
+                        peticaoAnexada = !peticaoAnexada;
                     }
-                    return true;
-                }                
+                    else
+                    {
+                        navegador.FindElement(By.XPath(DocumentoXPath.INPUT_DOCUMENTO)).SendKeys(@arq);
+                    }
+                }
+                return InsereTipoDocumento(arquivos);
             }
             return false;
+        }
+
+        public bool InsereTipoDocumento(string[] arquivos)
+        {
+            try
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(30));
+                for (int posArquivo = 1; posArquivo < arquivos.Length; posArquivo++)
+                {
+                    IWebElement tipoPeticao = GetWebDriverWait(By.XPath(DocumentoXPath.ElementoClicavel(posArquivo)));
+                    tipoPeticao.Click();
+
+                    navegador.FindElement(By.XPath(DocumentoXPath.InputTipoDocumento(posArquivo))).SendKeys(ObterNomeTipoDeDocumento(arquivos[posArquivo]) + Keys.Tab);
+                }
+                return true;
+            }
+            catch (OpenQA.Selenium.ElementClickInterceptedException)
+            {
+                return false;
+            }
         }
        
         /* Método coloca o arquivo com a nomenclatura PETICAO na posição 0,
