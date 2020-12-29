@@ -207,13 +207,7 @@ namespace TjspAutomacao.Classe
         private bool UploadArquivos(string numeroProcesso, string caminhoArquivos)
         {            
             string[] arquivos = Directory.GetFiles(caminhoArquivos, numeroProcesso + "*.pdf", SearchOption.AllDirectories);           
-            bool peticaoAnexada = false;            
-
-            //var allowsDetection = this.navegador as IAllowsFileDetection;
-            //if (allowsDetection != null)
-            //{
-            //    allowsDetection.FileDetector = new LocalFileDetector();
-            //}
+            bool peticaoAnexada = false;                        
 
             if (arquivos.Length > 0 && ExistePeticao(arquivos))
             {
@@ -239,13 +233,15 @@ namespace TjspAutomacao.Classe
         {
             try
             {
-                Thread.Sleep(TimeSpan.FromSeconds(30));
-                for (int posArquivo = 1; posArquivo < arquivos.Length; posArquivo++)
+                Thread.Sleep(TimeSpan.FromSeconds(15));
+                DocumentoXPath documentoXPath = new DocumentoXPath();
+
+                for (int posArray = 1; posArray < arquivos.Length; posArray++)
                 {
-                    IWebElement tipoPeticao = GetWebDriverWait(By.XPath(DocumentoXPath.ElementoClicavel(posArquivo)));
+                    IWebElement tipoPeticao = GetWebDriverWait(By.XPath(documentoXPath.GetBotaoTipoDocumento(posArray)));
                     tipoPeticao.Click();
 
-                    navegador.FindElement(By.XPath(DocumentoXPath.InputTipoDocumento(posArquivo))).SendKeys(ObterNomeTipoDeDocumento(arquivos[posArquivo]) + Keys.Tab);
+                    navegador.FindElement(By.XPath(documentoXPath.GetInputTipoDocumento(posArray))).SendKeys(ObterNomeTipoDeDocumento(arquivos[posArray]) + Keys.Tab);
                 }
                 return true;
             }
