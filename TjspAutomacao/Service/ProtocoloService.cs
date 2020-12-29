@@ -23,7 +23,7 @@ namespace TjspAutomacao.Classe
         private readonly string LOGIN_ESAJ = "https://esaj.tjsp.jus.br/sajcas/login?service=https%3A%2F%2Fesaj.tjsp.jus.br%2Fesaj%2Fj_spring_cas_security_check";
         private readonly string PETICAO_INTERMEDIARIA = "https://esaj.tjsp.jus.br/petpg/peticoes/intermediaria";
         private readonly TimeSpan TEMPO_ESPERA = TimeSpan.FromSeconds(5);
-        private readonly int TAMANHO_NUMERO_DESPPROCESSUAIS = 19;
+        private readonly int TAMANHO_NUMERO_DARE = 19;
         private readonly int TAMANHO_NUMERO_PROCESSO = 25;
         private IWebDriver navegador;       
 
@@ -147,23 +147,19 @@ namespace TjspAutomacao.Classe
         {            
             if (!string.IsNullOrEmpty(numeroDocumento) && navegador.FindElement(By.Id("botaoEditarDespesas")).Displayed)
             {
-                if(numeroDocumento.Length > TAMANHO_NUMERO_DESPPROCESSUAIS)
-                {
-                    bool inseriuPrimeiraDare = true;
+                DespesasProcessuaisXPath despesas = new DespesasProcessuaisXPath();
+                if (numeroDocumento.Length > TAMANHO_NUMERO_DARE)
+                {                    
                     string[] listaNumeroDocumento = numeroDocumento.Split('-');
                     foreach (string numDoc in listaNumeroDocumento)
                     {
                         if(!string.IsNullOrEmpty(numDoc))
                         {
-                            InserirDare(numDoc, inseriuPrimeiraDare);
-                            inseriuPrimeiraDare = false;
+                            InserirDare(numDoc, despesas);                           
                         }                        
                     }
                 }
-                else
-                {
-                    InserirDare(numeroDocumento, true);
-                }                                  
+                InserirDare(numeroDocumento, despesas);
             }
         }
 
@@ -174,25 +170,31 @@ namespace TjspAutomacao.Classe
 
         }
 
-        private void InserirDare(string numeroDocumento, bool primeiraDare)
+        private void InserirDare(string numeroDocumento, DespesasProcessuaisXPath despesas)
         {
-            if (numeroDocumento.Length == TAMANHO_NUMERO_DESPPROCESSUAIS)
+            if (numeroDocumento.Length == TAMANHO_NUMERO_DARE)
             {
                 try
                 {
-                    if(primeiraDare)
+                    if(despesas.PrimeiraDare())
                     {
                         navegador.FindElement(By.Id("botaoEditarDespesas")).Click();
-                        navegador.FindElement(By.Id("guiaCustasEmitida")).Click();
-                    }                                        
-                    navegador.FindElement(By.XPath("//*[@id='secaoGuiaCustas']/div/div/button")).Click();
+                        if (!navegador.FindElement(By.Id("guiaCustasEmitida")).Selected)
+                            navegador.FindElement(By.Id("guiaCustasEmitida")).Click();
+                    }
+                    navegador.FindElement(By.XPath(despesas.GetBotaoDocumentoXPath())).Click();
                     navegador.FindElement(By.Id("numeroGuiaDare")).SendKeys(numeroDocumento + Keys.Tab);
-                    Thread.Sleep(TEMPO_ESPERA);
-                    navegador.FindElement(By.Id("btnSalvarGuia")).Click();                    
+                    IWebElement btnSalvarGuia = GetWebDriverWait(By.Id("btnSalvarGuia"));
+                    btnSalvarGuia.Click();
                 }
                 catch (OpenQA.Selenium.NoSuchElementException elementException)
                 {
                     MessageBox.Show("Elemento não encontrado na página: " + elementException.InnerException.Source);
+                    navegador.Close();
+                }
+                catch(OpenQA.Selenium.ElementClickInterceptedException elementClickInterceptedException)
+                {
+                    MessageBox.Show("Erro: " + elementClickInterceptedException.Message);
                     navegador.Close();
                 }
                 catch (OpenQA.Selenium.WebDriverException)
@@ -207,11 +209,11 @@ namespace TjspAutomacao.Classe
             string[] arquivos = Directory.GetFiles(caminhoArquivos, numeroProcesso + "*.pdf", SearchOption.AllDirectories);           
             bool peticaoAnexada = false;            
 
-            var allowsDetection = this.navegador as IAllowsFileDetection;
-            if (allowsDetection != null)
-            {
-                allowsDetection.FileDetector = new LocalFileDetector();
-            }
+            //var allowsDetection = this.navegador as IAllowsFileDetection;
+            //if (allowsDetection != null)
+            //{
+            //    allowsDetection.FileDetector = new LocalFileDetector();
+            //}
 
             if (arquivos.Length > 0 && ExistePeticao(arquivos))
             {
