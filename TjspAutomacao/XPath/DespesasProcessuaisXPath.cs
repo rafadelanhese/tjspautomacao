@@ -8,7 +8,8 @@ namespace TjspAutomacao.XPath
 {
     class DespesasProcessuaisXPath
     {        
-        private readonly string BOTAO_DOCUMENTO = "//*[@id='secaoGuiaCustas']/div/div/button";
+        private readonly string BotaoDocumento = "//*[@id='secaoGuiaCustas']/div/div/button";
+        private readonly int posInsercaoString = 30;
         private int QtdeDare = 1;
 
         public DespesasProcessuaisXPath()
@@ -18,15 +19,11 @@ namespace TjspAutomacao.XPath
 
         public string GetBotaoDocumentoXPath()
         {
-            if(QtdeDare == 1)
-            {
-                QtdeDare++;
-                return BOTAO_DOCUMENTO;
-            }
+            string strBotaoDocumento;
 
-            string auxQtdeDare = QtdeDare.ToString();
+            strBotaoDocumento = PrimeiraDare() ? BotaoDocumento : BotaoDocumento.Insert(posInsercaoString, "[" + QtdeDare.ToString() + "]");     
             QtdeDare++;
-            return BOTAO_DOCUMENTO.Insert(30, "[" + auxQtdeDare + "]");
+            return strBotaoDocumento;
         } 
 
         public bool PrimeiraDare()
