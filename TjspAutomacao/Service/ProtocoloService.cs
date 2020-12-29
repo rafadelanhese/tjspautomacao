@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using TjspAutomacao.Model;
@@ -89,17 +90,17 @@ namespace TjspAutomacao.Classe
                     InserirNumeroProcesso(numeroProcesso);
                     Thread.Sleep(TEMPO_ESPERA);
                     InserirClassificacao(tipoPeticao);
-                    Thread.Sleep(TEMPO_ESPERA);
-                    InserirDespesasProcessuais(numeroDocumento);
+                    //Thread.Sleep(TEMPO_ESPERA);
+                    //InserirDespesasProcessuais(numeroDocumento);
                     Thread.Sleep(TEMPO_ESPERA);
                     uploadArquivos = UploadArquivos(numeroProcesso, caminhoPasta);
-                    Thread.Sleep(TEMPO_ESPERA);
-                    SalvarRascunho();
+                    //Thread.Sleep(TEMPO_ESPERA);
+                    //SalvarRascunho();
                     if (!uploadArquivos)
                         GravaValorProtocoloDGV(dgvLinha, "NÃO PROTOCOLADO");
                     else
                     {
-                        //AssinarDocumento(senhaToken);
+                        AssinarDocumento(senhaToken);
                         GravaValorProtocoloDGV(dgvLinha, "PROTOCOLADO");
                         GravaValorProtocoloTXT(numeroProcesso);
                     }
@@ -159,7 +160,10 @@ namespace TjspAutomacao.Classe
                         }                        
                     }
                 }
-                InserirDare(numeroDocumento, despesas);
+                else
+                {
+                    InserirDare(numeroDocumento, despesas);
+                }                
             }
         }
 
@@ -205,84 +209,52 @@ namespace TjspAutomacao.Classe
             }            
         }
         private bool UploadArquivos(string numeroProcesso, string caminhoArquivos)
-        {            
-            string[] arquivos = Directory.GetFiles(caminhoArquivos, numeroProcesso + "*.pdf", SearchOption.AllDirectories);           
-            bool peticaoAnexada = false;                        
+        {           
+            string[] arquivos = Directory.GetFiles(caminhoArquivos, numeroProcesso + "*.pdf", SearchOption.AllDirectories); 
+            List<string> listArquivos = arquivos.ToList<string>();            
 
-            if (arquivos.Length > 0 && ExistePeticao(arquivos))
-            {
-                arquivos = OrganizaArquivos(arquivos);
-                foreach (string arq in arquivos)
+            if (listArquivos.Count > 0 && listArquivos.Exists(arquivo => arquivo.Contains("PETICAO")))
+            {              
+                int indexPeticao = listArquivos.FindIndex(arquivo => arquivo.Contains("PETICAO"));                
+                
+                navegador.FindElement(By.XPath("//*[@id='botaoAdicionarDocumento']/input")).SendKeys(@listArquivos[indexPeticao]);
+                
+                listArquivos.RemoveAt(indexPeticao);
+                
+                listArquivos.ForEach(delegate (string arquivo)
                 {
-                    if (!peticaoAnexada)
-                    {
-                        navegador.FindElement(By.XPath("//*[@id='botaoAdicionarDocumento']/input")).SendKeys(@arq);
-                        peticaoAnexada = !peticaoAnexada;
-                    }
-                    else
-                    {
-                        navegador.FindElement(By.XPath(DocumentoXPath.INPUT_DOCUMENTO)).SendKeys(@arq);
-                    }
-                }
-                return InsereTipoDocumento(arquivos);
-            }
-            return false;
-        }
-
-        public bool InsereTipoDocumento(string[] arquivos)
-        {
-            try
-            {
-                Thread.Sleep(TimeSpan.FromSeconds(15));
-                DocumentoXPath documentoXPath = new DocumentoXPath();
-
-                for (int posArray = 1; posArray < arquivos.Length; posArray++)
+                    navegador.FindElement(By.XPath(DocumentoXPath.INPUT_DOCUMENTO)).SendKeys(@arquivo);
+                });
+                
+                try
                 {
-                    IWebElement tipoPeticao = GetWebDriverWait(By.XPath(documentoXPath.GetBotaoTipoDocumento(posArray)));
-                    tipoPeticao.Click();
+                    //InsereTipoDocumento
+                    Thread.Sleep(TimeSpan.FromSeconds(15));
+                    DocumentoXPath documentoXPath = new DocumentoXPath();
+                    int posInputTipoDoc = 1;
+                    listArquivos.ForEach(delegate (string arquivo)
+                    {
+                        IWebElement tipoPeticao = GetWebDriverWait(By.XPath(documentoXPath.GetBotaoTipoDocumento(posInputTipoDoc)));
+                        tipoPeticao.Click();
 
-                    navegador.FindElement(By.XPath(documentoXPath.GetInputTipoDocumento(posArray))).SendKeys(ObterNomeTipoDeDocumento(arquivos[posArray]) + Keys.Tab);
+                        navegador.FindElement(By.XPath(documentoXPath.GetInputTipoDocumento(posInputTipoDoc))).SendKeys(ObterNomeTipoDeDocumento(arquivo) + Keys.Tab);
+                        posInputTipoDoc++;
+                    });
+                    return true;
                 }
-                return true;
+                catch (OpenQA.Selenium.ElementClickInterceptedException)
+                {
+                    return false;
+                }                
             }
-            catch (OpenQA.Selenium.ElementClickInterceptedException)
+            else
             {
+                MessageBox.Show("Não foi encontrada a Petição no diretório de arquivos");
+                navegador.Quit();
                 return false;
-            }
-        }
-       
-        /* Método coloca o arquivo com a nomenclatura PETICAO na posição 0,
-         * o restante do array é mantido na mesma forma uma vez que não necessidade de ter uma ordem específica
-         */
-        private string[] OrganizaArquivos(string[] arquivos)
-        {
-            string[] auxiliarArquivos = new string[arquivos.Length];
-            int posicaoInicialAuxArquivos = 1;            
-
-            foreach (string arq in arquivos)
-            {
-                if (arq.Contains("PETICAO"))
-                    auxiliarArquivos[0] = arq;
-                else
-                {
-                    auxiliarArquivos[posicaoInicialAuxArquivos++] = arq;                    
-                }
             }           
-            
-            return auxiliarArquivos;
-        }
+        }        
 
-        private bool ExistePeticao(string[] arquivos)
-        {
-            bool existePeticao = false;
-            foreach (string arq in arquivos)
-            {
-                if (arq.Contains("PETICAO"))
-                    existePeticao = !existePeticao;
-            }
-            
-            return existePeticao;
-        }
         private string ObterNomeTipoDeDocumento(string arq)
         {
             //45 - valor do - em int
@@ -329,7 +301,7 @@ namespace TjspAutomacao.Classe
                 IWebElement weContainerCertificado = new WebDriverWait(navegador, TimeSpan.FromSeconds(25)).Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath(CertificadoXPath.CONTAINER_CERTIFICADO_ASSINATURA)));
                 navegador.FindElement(By.Id(CertificadoXPath.BOTAO_PROTOCOLAR)).Click();
                 navegador.FindElement(By.XPath(CertificadoXPath.BOTAO_PROTOCOLAR_SIM)).Click();
-                AcessaCertificadoDigital(senhaToken);
+                AcessarCertificadoDigital(senhaToken);
             }
             catch (OpenQA.Selenium.ElementNotInteractableException)
             {
@@ -355,7 +327,7 @@ namespace TjspAutomacao.Classe
                 IWebElement botaoEntrar = GetWebDriverWait(By.Id("submitCertificado"));
                 botaoEntrar.Click();
 
-                AcessaCertificadoDigital(senhaToken);
+                AcessarCertificadoDigital(senhaToken);
             }
             catch (Exception e)
             {
@@ -369,7 +341,7 @@ namespace TjspAutomacao.Classe
             return new WebDriverWait(navegador, TimeSpan.FromMinutes(1)).Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(elemento));
         }
 
-        private bool AcessaCertificadoDigital(string senhaToken)
+        private bool AcessarCertificadoDigital(string senhaToken)
         {
             try
             {
