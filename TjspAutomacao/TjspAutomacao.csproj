@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="XPath\CertificadoXPath.cs" />
+    <Compile Include="XPath\DespesasProcessuaisXPath.cs" />
     <Compile Include="XPath\DocumentoXPath.cs" />
     <Compile Include="Service\PlanilhaService.cs" />
     <Compile Include="Service\ProtocoloService.cs" />
