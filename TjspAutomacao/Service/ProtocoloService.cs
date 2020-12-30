@@ -199,7 +199,7 @@ namespace TjspAutomacao.Classe
             }
             return false;
         }
-
+       
         private void InserirDare(string numeroDocumento, DespesasProcessuaisXPath despesas)
         {
             if (numeroDocumento.Length == TAMANHO_NUMERO_DARE)
