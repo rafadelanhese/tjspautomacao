@@ -78,7 +78,7 @@ namespace TjspAutomacao.Classe
 
         public void Protocolar(DataGridView dgvProcessos, string caminhoPasta, string senhaToken)
         {
-            bool uploadArquivos;
+            bool uploadArquivos, inserirSolicitante;
             foreach(DataGridViewRow dgvLinha in dgvProcessos.Rows)
             {
                 if(dgvLinha != null)
@@ -90,14 +90,17 @@ namespace TjspAutomacao.Classe
                     InserirNumeroProcesso(numeroProcesso);
                     Thread.Sleep(TEMPO_ESPERA);
                     InserirClassificacao(tipoPeticao);
-                    //Thread.Sleep(TEMPO_ESPERA);
-                    //InserirDespesasProcessuais(numeroDocumento);
+                    Thread.Sleep(TEMPO_ESPERA);
+                    InserirDespesasProcessuais(numeroDocumento);
+                    Thread.Sleep(TEMPO_ESPERA);
+                    inserirSolicitante = InserirSolicitante();
                     Thread.Sleep(TEMPO_ESPERA);
                     uploadArquivos = UploadArquivos(numeroProcesso, caminhoPasta);
-                    //Thread.Sleep(TEMPO_ESPERA);
-                    //SalvarRascunho();
-                    if (!uploadArquivos)
+                    if (!uploadArquivos || !inserirSolicitante)
+                    {
+                        SalvarRascunho();
                         GravaValorProtocoloDGV(dgvLinha, "NÃO PROTOCOLADO");
+                    }
                     else
                     {
                         AssinarDocumento(senhaToken);
@@ -167,11 +170,30 @@ namespace TjspAutomacao.Classe
             }
         }
 
-        private void InserirPoloAtivo()
-        {
-            //string[] dados = { "07.282.377/0001-20", "60.942.281/0001-23", "07.297.359/0001-11", "61.416.244/0001-44", "77.882.504/0002-98", "07.282.377/0001-20" };
-            List<string> listCNPJ = new List<string>() {"07.282.377/0001-20", "60.942.281/0001-23", "07.297.359/0001-11", "61.416.244/0001-44", "77.882.504/0002-98", "07.282.377/0001-20"};           
-
+        private bool InserirSolicitante()
+        {            
+            List<string> listCNPJ = new List<string>() {"07.282.377/0001-20", "60.942.281/0001-23", "07.297.359/0001-11", "61.416.244/0001-44", "77.882.504/0002-98", "07.282.377/0001-20"};
+            IReadOnlyList<IWebElement> listSolicitante = navegador.FindElements(By.ClassName("polo__represent__list__item"));              
+            if(listSolicitante.Count > 0 && navegador.FindElement(By.Id("blocoParteDiversas")).Displayed)
+            {
+                foreach (IWebElement solicitante in listSolicitante)
+                {
+                    string valorID = solicitante.GetAttribute("id");
+                    if (!string.IsNullOrEmpty(valorID))
+                    {
+                        string spanXPath = "//*[@id=]/div/div/div[1]/span[2]";
+                        string idSolicitante = Char.ConvertFromUtf32(34) + valorID + Char.ConvertFromUtf32(34);                       
+                        IWebElement spanSolicitante = navegador.FindElement(By.XPath(spanXPath.Insert(8, idSolicitante)));
+                        if (spanSolicitante != null && listCNPJ.Contains(spanSolicitante.Text))
+                        {
+                            string inputXPath = "//*[@id=]/div/div/div[2]/span/button";
+                            navegador.FindElement(By.XPath(inputXPath.Insert(8, idSolicitante))).Click();
+                            return true;
+                        }
+                    }                    
+                }
+            }
+            return false;
         }
 
         private void InserirDare(string numeroDocumento, DespesasProcessuaisXPath despesas)
@@ -367,7 +389,7 @@ namespace TjspAutomacao.Classe
                     AutoItX.ControlSend("Introduzir PIN", "", "", senhaToken, 0);
 
                     //linha abaixo clica no botão OK do após colocar a senha
-                    //AutoItX.MouseClick("left", janelaPIN.X + 145, janelaPIN.Y + 140, 1, 30);
+                    AutoItX.MouseClick("left", janelaPIN.X + 145, janelaPIN.Y + 140, 1, 30);
                 }
 
                 return true;
