@@ -50,6 +50,7 @@
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.label5 = new System.Windows.Forms.Label();
             this.ttbSenhaToken = new System.Windows.Forms.TextBox();
+            this.cbbCertificadoDigital = new System.Windows.Forms.ComboBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -66,14 +67,14 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(402, 58);
+            this.groupBox1.Size = new System.Drawing.Size(373, 58);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Credenciais TJ/SP";
             // 
             // ttbSenha
             // 
-            this.ttbSenha.Location = new System.Drawing.Point(237, 24);
+            this.ttbSenha.Location = new System.Drawing.Point(207, 24);
             this.ttbSenha.Name = "ttbSenha";
             this.ttbSenha.PasswordChar = '*';
             this.ttbSenha.Size = new System.Drawing.Size(152, 20);
@@ -90,7 +91,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(190, 27);
+            this.label2.Location = new System.Drawing.Point(160, 27);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(41, 13);
             this.label2.TabIndex = 1;
@@ -233,18 +234,19 @@
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.cbbCertificadoDigital);
             this.groupBox5.Controls.Add(this.label5);
-            this.groupBox5.Location = new System.Drawing.Point(421, 12);
+            this.groupBox5.Location = new System.Drawing.Point(391, 12);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(367, 58);
+            this.groupBox5.Size = new System.Drawing.Size(397, 58);
             this.groupBox5.TabIndex = 8;
             this.groupBox5.TabStop = false;
-            this.groupBox5.Text = "Senha Token";
+            this.groupBox5.Text = "Certificado Digital";
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 27);
+            this.label5.Location = new System.Drawing.Point(262, 27);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(44, 13);
             this.label5.TabIndex = 0;
@@ -252,11 +254,20 @@
             // 
             // ttbSenhaToken
             // 
-            this.ttbSenhaToken.Location = new System.Drawing.Point(474, 36);
+            this.ttbSenhaToken.Location = new System.Drawing.Point(694, 36);
             this.ttbSenhaToken.Name = "ttbSenhaToken";
             this.ttbSenhaToken.PasswordChar = '*';
-            this.ttbSenhaToken.Size = new System.Drawing.Size(295, 20);
+            this.ttbSenhaToken.Size = new System.Drawing.Size(82, 20);
             this.ttbSenhaToken.TabIndex = 1;
+            // 
+            // cbbCertificadoDigital
+            // 
+            this.cbbCertificadoDigital.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbbCertificadoDigital.FormattingEnabled = true;
+            this.cbbCertificadoDigital.Location = new System.Drawing.Point(6, 23);
+            this.cbbCertificadoDigital.Name = "cbbCertificadoDigital";
+            this.cbbCertificadoDigital.Size = new System.Drawing.Size(255, 21);
+            this.cbbCertificadoDigital.TabIndex = 1;
             // 
             // Dashboard
             // 
@@ -312,6 +323,7 @@
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox ttbSenhaToken;
+        private System.Windows.Forms.ComboBox cbbCertificadoDigital;
     }
 }
 

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TjspAutomacao.CertificadoDigital;
 using TjspAutomacao.Classe;
 using TjspAutomacao.Service;
 
@@ -17,7 +18,9 @@ namespace TjspAutomacao
     {        
         public Dashboard()
         {
-            InitializeComponent();            
+            InitializeComponent();
+            Certificado certificadoDigital = new Certificado();
+            cbbCertificadoDigital.DataSource = certificadoDigital.GetAllCertificates();
         }                   
 
         private void BtnProcurar_Click(object sender, EventArgs e)
