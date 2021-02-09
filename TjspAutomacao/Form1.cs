@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +20,8 @@ namespace TjspAutomacao
         public Dashboard()
         {
             InitializeComponent();
+            Directory.CreateDirectory("ChromeProfile");
+            Directory.CreateDirectory("Reports");
             Certificado certificadoDigital = new Certificado();
             cbbCertificadoDigital.DataSource = certificadoDigital.GetAllCertificates();
         }                   
@@ -38,20 +41,20 @@ namespace TjspAutomacao
         private void BtnProtocolar_Click(object sender, EventArgs e)
         {
             ProtocoloService protocoloService = new ProtocoloService();
-            //protocoloService.LoginCertificadoDigital(ttbSenhaToken.Text);
-            if (string.IsNullOrEmpty(ttbSenhaToken.Text) || string.IsNullOrEmpty(ttbCPF.Text) || string.IsNullOrEmpty(ttbSenha.Text))
-            {
-                MessageBox.Show("Verificar Campos: CPF, Senha TJ/SP e Senha do token podem estar vazios ou nulos");
-            }
-            else
-            {
-                protocoloService.AbrirUrlLogin();
+            protocoloService.LoginCertificadoDigital(cbbCertificadoDigital.SelectedIndex, ttbSenhaToken.Text);
+            //if (string.IsNullOrEmpty(ttbSenhaToken.Text) || string.IsNullOrEmpty(ttbCPF.Text) || string.IsNullOrEmpty(ttbSenha.Text))
+            //{
+            //    MessageBox.Show("Verificar Campos: CPF, Senha TJ/SP e Senha do token podem estar vazios ou nulos");
+            //}
+            //else
+            //{
+            //    protocoloService.AbrirUrlLogin();
 
-                protocoloService.Login(ttbCPF.Text, ttbSenha.Text);
+            //    protocoloService.Login(ttbCPF.Text, ttbSenha.Text);
 
-                protocoloService.AbrirUrlPeticaoIntermediaria();
-                protocoloService.Protocolar(dgvProcessos, ttbCaminhoPasta.Text, ttbSenhaToken.Text);
-            }
+            //    protocoloService.AbrirUrlPeticaoIntermediaria();
+            //    protocoloService.Protocolar(dgvProcessos, ttbCaminhoPasta.Text, ttbSenhaToken.Text);
+            //}
 
         }
 
