@@ -30,10 +30,11 @@ namespace TjspAutomacao.Classe
 
         public ProtocoloService()
         {            
-            var chromeOptions = new ChromeOptions();
-            chromeOptions.PageLoadStrategy = PageLoadStrategy.Normal;            
-            chromeOptions.AddArguments("--start-maximized");           
-            chromeOptions.AddExtension(string.Concat(Directory.GetCurrentDirectory(),"\\WebSigner.crx"));
+            var chromeOptions = new ChromeOptions();            
+            chromeOptions.PageLoadStrategy = PageLoadStrategy.Normal;                        
+            chromeOptions.AddExtension(string.Concat(Directory.GetCurrentDirectory(),"\\WebSigner.crx"));           
+            chromeOptions.AddArguments("--user-data-dir=" + string.Concat(Directory.GetCurrentDirectory(), "\\ChromeProfile"));
+            chromeOptions.AddArguments("--start-maximized");
             this.navegador = new ChromeDriver(chromeOptions);
             this.navegador.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(100);
         }
@@ -336,7 +337,7 @@ namespace TjspAutomacao.Classe
                         
         }
 
-        public void LoginCertificadoDigital(string senhaToken)
+        public void LoginCertificadoDigital(int certificado, string senhaToken)
         {
             try
             {
@@ -344,20 +345,23 @@ namespace TjspAutomacao.Classe
 
                 IWebElement abaCertificadoDigital = GetWebDriverWait(By.XPath("//*[@id='tabs']/ul/li[2]"));
                 abaCertificadoDigital.Click();
+                Thread.Sleep(TimeSpan.FromSeconds(5));
 
-                //Seleciona o certificado pelo texto
-                //SelectElement selectCertificados = new SelectElement(navegador.FindElement(By.Id("certificados")));
-                //selectCertificados.SelectByText("[Não ICP-Brasil] 189.9.32.218 - Validade: 26/2/2021");
+                //Seleciona o certificado pelo indez selecionado no combobox
+                IWebElement certificadoDropDownElement = navegador.FindElement(By.Id("certificados"));
+                SelectElement selectCertificado = new SelectElement(certificadoDropDownElement);
+                selectCertificado.SelectByIndex(certificado);
+
 
 
                 IWebElement botaoEntrar = GetWebDriverWait(By.Id("submitCertificado"));
-                botaoEntrar.Click();
+                botaoEntrar.Click();               
 
                 AcessarCertificadoDigital(senhaToken);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-
+                MessageBox.Show("Um falha ocorreu ao tentar selecionar o certificado digital");
             }
             
         }
@@ -373,17 +377,17 @@ namespace TjspAutomacao.Classe
             {
                 if (AutoItX.WinWaitActive("Alerta de Segurança") == 1)
                 {
-                    System.Drawing.Rectangle janelaAlertaSegurança = AutoItX.WinGetPos("Alerta de Segurança");
-
-                    //Clica no no checkbox: Não me pergunte novamente para este site e certificado
-                    AutoItX.MouseClick("left", janelaAlertaSegurança.X + 25, janelaAlertaSegurança.Y + 199, 1, 30);
-
-                    //Clica no botão Permitir do WebSigner
-                    AutoItX.MouseClick("left", janelaAlertaSegurança.X + 265, janelaAlertaSegurança.Y + 255, 1, 30);
+                    /*
+                     Caso a janela de Alerta de segunça for aberta o usuário terá 15 segundos para permitir e o chrome salvar o profile
+                     */
+                    Thread.Sleep(TimeSpan.FromSeconds(15));                    
                 }
 
+                AutoItX.WinActivate("Introduzir PIN", "");
                 if (AutoItX.WinWaitActive("Introduzir PIN") == 1)
                 {
+
+                    //Na segunda rodada do assinador ele fica fora do foco e não acha, VERIFICAR
                     System.Drawing.Rectangle janelaPIN = AutoItX.WinGetPos("Introduzir PIN");
 
                     //Clica no input para colocar o cursor no lugar correto
@@ -391,9 +395,9 @@ namespace TjspAutomacao.Classe
 
                     //Envia a senha do token para o input de texto
                     AutoItX.ControlSend("Introduzir PIN", "", "", senhaToken, 0);
-
+                  
                     //linha abaixo clica no botão OK do após colocar a senha
-                    AutoItX.MouseClick("left", janelaPIN.X + 145, janelaPIN.Y + 140, 1, 30);
+                    //AutoItX.MouseClick("left", janelaPIN.X + 145, janelaPIN.Y + 140, 1, 30);
                 }
 
                 return true;
