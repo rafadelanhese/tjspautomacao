@@ -91,9 +91,9 @@ namespace TjspAutomacao.Service
 
         private static string DiretorioArquivoFormatado()
         {
-            int posicaoPonto = CaminhoArquivo.LastIndexOf(Char.ConvertFromUtf32(92));
-            string diretorioArquivo = CaminhoArquivo.Remove(posicaoPonto);
-            return diretorioArquivo + "\\Relatório Proc. Protocolados" + DataAtualFormatada() + ".txt";
+            int posBarraInvertida = CaminhoArquivo.LastIndexOf(Char.ConvertFromUtf32(92));
+            string diretorioArquivo = CaminhoArquivo.Remove(posBarraInvertida);
+            return diretorioArquivo + "\\Relatório Proc. Protocolados " + DataAtualFormatada() + ".txt";
         }
     }
 }
