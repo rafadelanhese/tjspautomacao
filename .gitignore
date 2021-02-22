@@ -1,2 +1,5 @@
 TjspAutomacao/bin/*
 TjspAutomacao/obj/*
+.vs/*
+TjspAutomacaoTest/*
+packages/*
