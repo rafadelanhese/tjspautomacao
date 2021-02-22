@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TjspAutomacao.CertificadoDigital;
 using TjspAutomacao.Classe;
+using TjspAutomacao.Report;
 using TjspAutomacao.Service;
 
 namespace TjspAutomacao
@@ -21,7 +22,7 @@ namespace TjspAutomacao
         {
             InitializeComponent();
             Directory.CreateDirectory("ChromeProfile");
-            Directory.CreateDirectory("Reports");
+            Directory.CreateDirectory("Reports");           
             Certificado certificadoDigital = new Certificado();
             cbbCertificadoDigital.DataSource = certificadoDigital.GetAllCertificates();
         }                   
@@ -41,7 +42,25 @@ namespace TjspAutomacao
         private void BtnProtocolar_Click(object sender, EventArgs e)
         {
             ProtocoloService protocoloService = new ProtocoloService();
-            protocoloService.LoginCertificadoDigital(cbbCertificadoDigital.SelectedIndex, ttbSenhaToken.Text);
+               
+            if (string.IsNullOrEmpty(cbbCertificadoDigital.SelectedItem.ToString()) || string.IsNullOrEmpty(ttbSenhaToken.Text))
+            {
+                MessageBox.Show("Nenhum certificado digital foi selecionado e/ou campo senha está vazia ou nula");
+            }
+            else
+            {
+                bool loginCertificado = false;
+                loginCertificado = protocoloService.LoginCertificadoDigital(cbbCertificadoDigital.SelectedIndex, ttbSenhaToken.Text);
+
+                if (loginCertificado)
+                {
+                    protocoloService.AbrirUrlPeticaoIntermediaria();
+                    protocoloService.Protocolar(dgvProcessos, ttbCaminhoPasta.Text, cbbCertificadoDigital.SelectedItem.ToString(), ttbSenhaToken.Text);                    
+                }
+                
+                //protocoloService.Protocolar(dgvProcessos, ttbCaminhoPasta.Text, ttbSenhaToken.Text);
+            }
+
             //if (string.IsNullOrEmpty(ttbSenhaToken.Text) || string.IsNullOrEmpty(ttbCPF.Text) || string.IsNullOrEmpty(ttbSenha.Text))
             //{
             //    MessageBox.Show("Verificar Campos: CPF, Senha TJ/SP e Senha do token podem estar vazios ou nulos");
@@ -69,10 +88,9 @@ namespace TjspAutomacao
 
         private void BtnCarregarPlanilha_Click(object sender, EventArgs e)
         {
-            PlanilhaService planilhaService = new PlanilhaService();
+            PlanilhaService planilhaService = new PlanilhaService(ttbCaminhoArquivo.Text);
             int numMinimoLinhasDGVProcessos = 1;
-
-            PlanilhaService.CaminhoArquivo = ttbCaminhoArquivo.Text;
+           
             dgvProcessos.DataSource = planilhaService.CarregaDataGridView();
 
             dgvProcessos.Columns["Número do Processo"].DefaultCellStyle.Format = "0000000\\-00\\.0000\\.0\\.00\\.0000";           

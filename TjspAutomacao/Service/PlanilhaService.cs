@@ -11,15 +11,16 @@ namespace TjspAutomacao.Service
 {
     class PlanilhaService
     {
-        public static string CaminhoArquivo { get; set; }
+        private string CaminhoArquivo { get; set; }
         private readonly int NUM_MINIMO_LINHAS = 1;
         private readonly int NUM_MINIMO_COLUNAS = 1;
         private readonly int NUM_CORRETO_COLUNAS = 4;
 
         private DataTable dtProcessos;
-        public PlanilhaService()
+        public PlanilhaService(string caminhoArquivo)
         {
             this.dtProcessos = new DataTable();
+            this.CaminhoArquivo = caminhoArquivo;
             InicializaDataTable();
         }
 
@@ -66,34 +67,6 @@ namespace TjspAutomacao.Service
                 }                           
             }
             return dtProcessos;
-        }
-
-        public static void InsereProtocoloTXT(string numeroProcesso)
-        {
-            string diretorioArquivo = DiretorioArquivoFormatado();
-           
-            using (StreamWriter streamWriter = new StreamWriter(diretorioArquivo, true, Encoding.Default))
-            {
-                streamWriter.WriteLineAsync(string.Concat(numeroProcesso," Data: " + DataAtualFormatada() + " Hora: " + HoraAtualFormatada()));
-                streamWriter.Close();
-            }
-        }
-
-        private static string DataAtualFormatada()
-        {
-            return DateTime.Now.Day + "-" + DateTime.Now.Month + "-" + DateTime.Now.Year;
-        }
-
-        private static string HoraAtualFormatada()
-        {
-            return DateTime.Now.Hour + ":" + DateTime.Now.Minute + ":" + DateTime.Now.Second;
-        }
-
-        private static string DiretorioArquivoFormatado()
-        {
-            int posBarraInvertida = CaminhoArquivo.LastIndexOf(Char.ConvertFromUtf32(92));
-            string diretorioArquivo = CaminhoArquivo.Remove(posBarraInvertida);
-            return diretorioArquivo + "\\Relatório Proc. Protocolados " + DataAtualFormatada() + ".txt";
         }
     }
 }

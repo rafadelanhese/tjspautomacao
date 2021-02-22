@@ -61,6 +61,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CertificadoDigital\Certificado.cs" />
+    <Compile Include="Report\Relatorio.cs" />
     <Compile Include="XPath\CertificadoXPath.cs" />
     <Compile Include="XPath\DespesasProcessuaisXPath.cs" />
     <Compile Include="XPath\DocumentoXPath.cs" />

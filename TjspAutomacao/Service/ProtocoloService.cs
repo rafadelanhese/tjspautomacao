@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using TjspAutomacao.Model;
+using TjspAutomacao.Report;
 using TjspAutomacao.Service;
 using TjspAutomacao.XPath;
 using Keys = OpenQA.Selenium.Keys;
@@ -77,9 +78,9 @@ namespace TjspAutomacao.Classe
             }                 
         }        
 
-        public void Protocolar(DataGridView dgvProcessos, string caminhoPasta, string senhaToken)
+        public void Protocolar(DataGridView dgvProcessos, string caminhoPasta, string certificado, string senhaToken)
         {
-            bool uploadArquivos, inserirSolicitante;
+            bool uploadArquivos, inserirSolicitante, selecionouCertificado;
             foreach(DataGridViewRow dgvLinha in dgvProcessos.Rows)
             {
                 if(dgvLinha != null)
@@ -97,16 +98,17 @@ namespace TjspAutomacao.Classe
                     inserirSolicitante = InserirSolicitante();
                     Thread.Sleep(TEMPO_ESPERA);
                     uploadArquivos = UploadArquivos(numeroProcesso, caminhoPasta);
-                    if (!uploadArquivos || !inserirSolicitante)
+                    selecionouCertificado = SelecionarCertificadoDigital(certificado);
+                    if (!uploadArquivos || !inserirSolicitante || !selecionouCertificado)
                     {
                         SalvarRascunho();
-                        GravaValorProtocoloDGV(dgvLinha, "NÃO PROTOCOLADO");
+                        GravarProtocoloDGV(dgvLinha, "NÃO PROTOCOLADO");
                     }
                     else
                     {
                         AssinarDocumento(senhaToken);
-                        GravaValorProtocoloDGV(dgvLinha, "PROTOCOLADO");
-                        GravaValorProtocoloTXT(numeroProcesso);
+                        GravarProtocoloDGV(dgvLinha, "PROTOCOLADO");
+                        GravarProtocoloRelatorio(numeroProcesso);
                     }
                     Thread.Sleep(TEMPO_ESPERA);
                     navegador.Navigate().GoToUrl(PETICAO_INTERMEDIARIA);
@@ -308,23 +310,20 @@ namespace TjspAutomacao.Classe
             navegador.FindElement(By.Id("botaoSalvarRascunho")).Click();
         }        
 
-        private void GravaValorProtocoloDGV(DataGridViewRow dgvLinha, string mensagem)
+        private void GravarProtocoloDGV(DataGridViewRow dgvLinha, string mensagem)
         {            
             dgvLinha.Cells["Protocolo"].Value = mensagem;                 
         }
 
-        private void GravaValorProtocoloTXT(string numeroProcesso)
+        private void GravarProtocoloRelatorio(string numeroProcesso)
         {
-            PlanilhaService.InsereProtocoloTXT(numeroProcesso);
+            Relatorio.GravaProtocolo(numeroProcesso);
         }
 
         private void AssinarDocumento(string senhaToken)
         {
             try
-            {
-                //navegador.FindElement(By.XPath("//*[@id='containerCertificadoParaAssinatura']/div[2]/div/div/div[1]/span/span[2]")).Click();
-                //navegador.FindElement(By.XPath("//*[@id='selectCertificadoParaAssinatura']")).Click();
-                //*[@id="containerCertificadoParaAssinatura"]/div[2]/div/div/div[1]/span
+            {                
                 IWebElement weContainerCertificado = new WebDriverWait(navegador, TimeSpan.FromSeconds(25)).Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath(CertificadoXPath.CONTAINER_CERTIFICADO_ASSINATURA)));
                 navegador.FindElement(By.Id(CertificadoXPath.BOTAO_PROTOCOLAR)).Click();
                 navegador.FindElement(By.XPath(CertificadoXPath.BOTAO_PROTOCOLAR_SIM)).Click();
@@ -337,31 +336,42 @@ namespace TjspAutomacao.Classe
                         
         }
 
-        public void LoginCertificadoDigital(int certificado, string senhaToken)
+        public bool LoginCertificadoDigital(int certificado, string senhaToken)
         {
             try
             {
-                navegador.Navigate().GoToUrl(LOGIN_ESAJ);                                            
+                navegador.Navigate().GoToUrl(LOGIN_ESAJ);                 
+                //IWebElement headerNavbarLogout = GetWebDriverWait(By.ClassName("header__navbar__name [active] open__aside-nav--right"));
+                if (!navegador.Url.Contains("spring_cas_security_check"))
+                {
+                    //Se navegador encontrar um desses elementos é porque o usuário já está logado
+                    return true;
+                }
+                else
+                {
+                    IWebElement abaCertificadoDigital = GetWebDriverWait(By.XPath("//*[@id='tabs']/ul/li[2]"));
+                    abaCertificadoDigital.Click();
 
-                IWebElement abaCertificadoDigital = GetWebDriverWait(By.XPath("//*[@id='tabs']/ul/li[2]"));
-                abaCertificadoDigital.Click();
-                Thread.Sleep(TimeSpan.FromSeconds(5));
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
 
-                //Seleciona o certificado pelo indez selecionado no combobox
-                IWebElement certificadoDropDownElement = navegador.FindElement(By.Id("certificados"));
-                SelectElement selectCertificado = new SelectElement(certificadoDropDownElement);
-                selectCertificado.SelectByIndex(certificado);
+                    //Seleciona o certificado pelo indez selecionado no combobox                    
+                    IWebElement certificadoDropDownElement = GetWebDriverWait(By.Id("certificados"));
+                    SelectElement selectCertificado = new SelectElement(certificadoDropDownElement);
+                    selectCertificado.SelectByIndex(certificado);
 
+                    IWebElement botaoEntrar = GetWebDriverWait(By.Id("submitCertificado"));
+                    botaoEntrar.Click();
 
+                    bool acessoCertificadoDigital = false;
+                    acessoCertificadoDigital = AcessarCertificadoDigital(senhaToken);
 
-                IWebElement botaoEntrar = GetWebDriverWait(By.Id("submitCertificado"));
-                botaoEntrar.Click();               
-
-                AcessarCertificadoDigital(senhaToken);
+                    return acessoCertificadoDigital;
+                }                
             }
             catch (Exception)
             {
                 MessageBox.Show("Um falha ocorreu ao tentar selecionar o certificado digital");
+                return false;
             }
             
         }
@@ -374,38 +384,57 @@ namespace TjspAutomacao.Classe
         private bool AcessarCertificadoDigital(string senhaToken)
         {
             try
-            {
-                if (AutoItX.WinWaitActive("Alerta de Segurança") == 1)
-                {
-                    /*
-                     Caso a janela de Alerta de segunça for aberta o usuário terá 15 segundos para permitir e o chrome salvar o profile
-                     */
-                    Thread.Sleep(TimeSpan.FromSeconds(15));                    
-                }
-
+            {          
                 AutoItX.WinActivate("Introduzir PIN", "");
                 if (AutoItX.WinWaitActive("Introduzir PIN") == 1)
                 {
 
                     //Na segunda rodada do assinador ele fica fora do foco e não acha, VERIFICAR
                     System.Drawing.Rectangle janelaPIN = AutoItX.WinGetPos("Introduzir PIN");
-
+                    
                     //Clica no input para colocar o cursor no lugar correto
                     AutoItX.MouseClick("left", janelaPIN.X + 115, janelaPIN.Y + 65, 1, 30);
 
                     //Envia a senha do token para o input de texto
                     AutoItX.ControlSend("Introduzir PIN", "", "", senhaToken, 0);
-                  
-                    //linha abaixo clica no botão OK do após colocar a senha
-                    //AutoItX.MouseClick("left", janelaPIN.X + 145, janelaPIN.Y + 140, 1, 30);
-                }
 
-                return true;
+                    //linha abaixo clica no botão OK do após colocar a senha
+                    AutoItX.MouseClick("left", janelaPIN.X + 145, janelaPIN.Y + 140, 1, 30);
+
+                    Thread.Sleep(TEMPO_ESPERA);
+
+                    return true;
+                }
+                else
+                {                    
+                    return false;
+                }                
             }
             catch(Exception e)
             {
+                MessageBox.Show("Falha ao acessar certificado digital: " + e.Message);
                 return false;
             }
         } 
+
+        private bool SelecionarCertificadoDigital(string certificado)
+        {
+            bool selecionouCertificado = false;
+            IWebElement selectCertificado = GetWebDriverWait(By.XPath("//*[@id='containerCertificadoParaAssinatura']/div[2]/div/div/div[1]/span"));
+            selectCertificado.Click();
+            
+            IReadOnlyList<IWebElement> listaUlCertificados = navegador.FindElements(By.Id("ui-select-choices-0"));
+            
+            foreach (IWebElement weCertificado in listaUlCertificados)
+            {
+                if (weCertificado.Text.Contains(certificado))
+                {
+                    weCertificado.Click();
+                    selecionouCertificado = true;
+                }
+            }
+
+            return selecionouCertificado;
+        }
     }
 }
